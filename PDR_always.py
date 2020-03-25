@@ -15,13 +15,13 @@ DtoR = math.pi / 180
 ################################################
 # 텍스트 파일 읽어오기
 ################################################
-conn = sql.connect('./0344/database-name.db')
+conn = sql.connect('./headingtest/database-name.db')
 c = conn.cursor()
 
 print("Data parsing... ")
 row_list = np.zeros((1, 16))
 for row in c.execute(
-        'SELECT time, accx, accy, accz, linaccx,linaccy, linaccz, gyrox, gyroy, gyroz, magx, magy, magz, yaw, pitch, roll FROM sensordata WHERE filename = "e2" ORDER BY time  '):
+        'SELECT time, accx, accy, accz, linaccx,linaccy, linaccz, gyrox, gyroy, gyroz, magx, magy, magz, yaw, pitch, roll FROM sensordata WHERE filename = "heading1" ORDER BY time  '):
     row_list = np.append(row_list, np.asarray(row).reshape((1, 16)), axis=0)
 
 row_list = row_list[1:, :]
