@@ -26,23 +26,21 @@ class PeakValleyDetector:
 
     def finding_switcher(self): #피크 -> 중간값이하 밸리 ->중간값이상 나오면 change
         if (self.finding == 'peak'): #피크를 찾는 중 이라면
-            if (self.lastPeak[0] != -1): #피크가 초기화 이후로 한번이라도 업데이트 됐다면
-                if (self.euc_norm < self.min_threshold): #다음 밸리값이 나오면
-                    if ( (self.current_time - self.lastUpdate) > self.step_interval):
-                        self.peak_df = self.peak_df.append({'time': self.lastPeak[0],\
-                        'value': self.lastPeak[1]}, ignore_index=True)
-                        self.lastPeak = [-1, 0] #사용했으므로 비워줍시다
-                        self.lastUpdate = self.current_time
-                        self.finding = 'valley'
-        else:
-            if (self.lastValley[0] != -1): #밸리가 초기화 이후로 한번이라도 업데이트 됐다면
-                if (self.euc_norm > self.max_threshold): #다음 피크값 나오면
-                    if ((self.current_time - self.lastUpdate) > self.step_interval):
-                        self.valley_df = self.valley_df.append({'time': self.lastValley[0],\
-                        'value': self.lastValley[1]}, ignore_index=True)
-                        self.lastValley = [-1, 20] #사용했으므로 비워줍시다
-                        self.lastUpdate = self.current_time
-                        self.finding = 'peak'
+            if (self.euc_norm < self.min_threshold): #다음 밸리값이 나오면
+                if ( (self.lastPeak[0] - self.lastUpdate) > self.step_interval): #피크가 초기화 이후로 한번이라도 업데이트 됐다면
+                    self.peak_df = self.peak_df.append({'time': self.lastPeak[0],\
+                    'value': self.lastPeak[1]}, ignore_index=True)
+                    self.lastUpdate = self.lastPeak[0]
+                    self.lastPeak = [-1, 0] #사용했으므로 비워줍시다
+                    self.finding = 'valley'
+        else: #밸리를 찾는 중 이라면
+            if (self.euc_norm > self.max_threshold): #다음 피크값 나오면
+                if ((self.lastValley[0] - self.lastUpdate) > self.step_interval): #밸리가 초기화 이후로 한번이라도 업데이트 됐다면
+                    self.valley_df = self.valley_df.append({'time': self.lastValley[0],\
+                    'value': self.lastValley[1]}, ignore_index=True)
+                    self.lastUpdate = self.lastValley[0]
+                    self.lastValley = [-1, 20] #사용했으므로 비워줍시다
+                    self.finding = 'peak'
 
     def norm_threshold(self): #여기서 norm 값이 threshold 못넘는 값들은 그냥 넘깁니다.
         if (self.euc_norm > self.max_threshold): #피크 threshold를 넘겼을때
