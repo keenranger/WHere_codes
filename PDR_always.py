@@ -27,7 +27,7 @@ if __name__ == "__main__":
     print(pvdetect.peak_df)
     print(pvdetect.valley_df)
     plt.figure(1)
-    plt.plot(pvdetect.norm_df['time'], pvdetect.norm_df['value'], c='black')
+    plt.plot(pvdetect.norm_df['time'], pvdetect.norm_df['value'], c='y', linewidth=0.5)
     plt.scatter(pvdetect.peak_df['time'], pvdetect.peak_df['value'], c='red')
     plt.scatter(pvdetect.valley_df['time'], pvdetect.valley_df['value'], c='blue')
    

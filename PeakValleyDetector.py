@@ -28,16 +28,14 @@ class PeakValleyDetector:
         if (self.finding == 'peak'): #피크를 찾는 중 이라면
             if (self.euc_norm < self.min_threshold): #다음 밸리값이 나오면
                 if ( (self.lastPeak[0] - self.lastUpdate) > self.step_interval): #피크가 초기화 이후로 한번이라도 업데이트 됐다면
-                    self.peak_df = self.peak_df.append({'time': self.lastPeak[0],\
-                    'value': self.lastPeak[1]}, ignore_index=True)
+                    self.peak_df.loc[len(self.peak_df)] = [self.lastPeak[0], self.lastPeak[1]]
                     self.lastUpdate = self.lastPeak[0]
                     self.lastPeak = [-1, 0] #사용했으므로 비워줍시다
                     self.finding = 'valley'
         else: #밸리를 찾는 중 이라면
             if (self.euc_norm > self.max_threshold): #다음 피크값 나오면
                 if ((self.lastValley[0] - self.lastUpdate) > self.step_interval): #밸리가 초기화 이후로 한번이라도 업데이트 됐다면
-                    self.valley_df = self.valley_df.append({'time': self.lastValley[0],\
-                    'value': self.lastValley[1]}, ignore_index=True)
+                    self.valley_df.loc[len(self.valley_df)] = [self.lastValley[0], self.lastValley[1]]
                     self.lastUpdate = self.lastValley[0]
                     self.lastValley = [-1, 20] #사용했으므로 비워줍시다
                     self.finding = 'peak'
