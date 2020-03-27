@@ -18,7 +18,8 @@ if __name__ == "__main__":
     print("Data parsing done!")
     print(sensor_df)
     print(sensor_df.describe())
-    # 피크 검출
+    
+    # 피크 밸리 검출
     pvdetect = PeakValleyDetector.PeakValleyDetector(len(sensor_df))
     for index, row in sensor_df[['time', 'accx', 'accy', 'accz']].iterrows():
         if (index % 500 == 0):

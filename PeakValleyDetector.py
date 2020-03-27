@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 class PeakValleyDetector:
-    def __init__(self, data_len, min_threshold=9, max_threshold = 11, step_interval = 100):
+    def __init__(self, min_threshold=9, max_threshold = 11, step_interval = 100):
         self.min_threshold = min_threshold
         self.max_threshold = max_threshold
         self.step_interval = step_interval
@@ -10,7 +10,6 @@ class PeakValleyDetector:
         self.valley_df = pd.DataFrame(columns=("time", "value"))
         self.lastPeak = np.array([10000000000000000, 0]) #마지막 피크의 시간과 값이 닮겨있음
         self.lastValley = np.array([100000000000000001 ,20]) #마지막 밸리의 시간과 값이 닮겨있음
-        self.lastUpdate = 0
         self.acc = np.zeros(3)
         self.finding = 'peak'
         self.norm_df = pd.DataFrame(columns=("time", "value"))
@@ -26,14 +25,12 @@ class PeakValleyDetector:
     def finding_switcher(self): #피크 -> 중간값이하 밸리 ->중간값이상 나오면 change
         if (self.finding == 'peak'): #피크를 찾는 중 이라면
             if ( (self.current_time - self.lastPeak[0]) > self.step_interval): #시간간격이 충분하면
-                self.peak_df.loc[len(self.peak_df)] = [self.lastPeak[0], self.lastPeak[1]]
-                self.lastUpdate = self.lastPeak[0]                
+                self.peak_df.loc[len(self.peak_df)] = [self.lastPeak[0], self.lastPeak[1]]      
                 self.finding = 'valley'
                 self.lastPeak = [10000000000000000, 0] #시간간격이 부족하거나, 사용했습니다. 비워줘야합니다
         else: #밸리를 찾는 중 이라면
             if ( (self.current_time - self.lastValley[0]) > self.step_interval): #시간간격이 충분하면
                 self.valley_df.loc[len(self.valley_df)] = [self.lastValley[0], self.lastValley[1]]
-                self.lastUpdate = self.lastValley[0]
                 self.finding = 'peak'
                 self.lastValley = [10000000000000000, 20] #시간간격이 부족하거나, 사용했습니다. 비워줘야합니다
 
