@@ -29,7 +29,7 @@ class PeakValleyDetector:
                 self.peak_df.loc[len(self.peak_df)] = [self.lastPeak[0], self.lastPeak[1]]
                 self.lastUpdate = self.lastPeak[0]                
                 self.finding = 'valley'
-                self.lastPeak = [100000000000000001, 0] #시간간격이 부족하거나, 사용했습니다. 비워줘야합니다
+                self.lastPeak = [10000000000000000, 0] #시간간격이 부족하거나, 사용했습니다. 비워줘야합니다
         else: #밸리를 찾는 중 이라면
             if ( (self.current_time - self.lastValley[0]) > self.step_interval): #시간간격이 충분하면
                 self.valley_df.loc[len(self.valley_df)] = [self.lastValley[0], self.lastValley[1]]
