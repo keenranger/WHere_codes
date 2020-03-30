@@ -36,12 +36,16 @@ class PeakValleyDetector:
 
     def norm_threshold(self): #여기서 norm 값이 threshold 못넘는 값들은 그냥 넘깁니다.
         if (self.euc_norm > self.max_threshold): #피크 threshold를 넘겼을때
-            if (self.euc_norm > self.lastPeak[1]): #최댓값이 아니라면
-                self.lastPeak = [self.current_time, self.euc_norm] #최댓값으로 업데이트
+            self.peakvalley_update()
             if (self.finding == 'valley'): #밸리를 찾는 중 이라면
                 self.finding_switcher()
         if (self.euc_norm < self.min_threshold): #밸리 threshold 이하일때
-            if (self.euc_norm < self.lastValley[1]): #최솟값이 아니라면
-                self.lastValley = [self.current_time, self.euc_norm] #최솟값으로 업데이트
+            self.peakvalley_update()
             if (self.finding == 'peak'): #피크를 찾는 중 이라면
                 self.finding_switcher()
+
+    def peakvalley_update(self):
+        if (self.euc_norm > self.lastPeak[1]): #최댓값이 아니라면
+            self.lastPeak = [self.current_time, self.euc_norm] #최댓값으로 업데이트
+        if (self.euc_norm < self.lastValley[1]): #최솟값이 아니라면
+            self.lastValley = [self.current_time, self.euc_norm] #최솟값으로 업데이트
