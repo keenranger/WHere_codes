@@ -20,9 +20,9 @@ if __name__ == "__main__":
     print(sensor_df.describe())
     
     # 피크 밸리 검출
-    pvdetect = PeakValleyDetector.PeakValleyDetector(len(sensor_df))
+    pvdetect = PeakValleyDetector.PeakValleyDetector()
     for index, row in sensor_df[['time', 'accx', 'accy', 'accz']].iterrows():
-        if (index % 500 == 0):
+        if (index % 1000 == 0):
             print("now it`s {0} step.".format(index))
         pvdetect.step(index, row)
     print(pvdetect.peak_df)
