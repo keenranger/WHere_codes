@@ -6,7 +6,7 @@ import PeakValleyDetector
 
 if __name__ == "__main__":
     ## sql을 통해 dataframe으로 db 가져오기
-    conn = sql.connect('./headingtest/database-name.db')
+    conn = sql.connect('./data/headingtest/database-name.db')
     cur = conn.cursor()
     print("Data parsing... ")
     query = cur.execute('SELECT time, accx, accy, accz, gyrox, gyroy, gyroz,\
