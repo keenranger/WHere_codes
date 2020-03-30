@@ -31,6 +31,7 @@ if __name__ == "__main__":
     plt.plot(pvdetect.norm_df['time'], pvdetect.norm_df['value'], c='y', linewidth=0.5)
     plt.scatter(pvdetect.peak_df['time'], pvdetect.peak_df['value'], c='red')
     plt.scatter(pvdetect.valley_df['time'], pvdetect.valley_df['value'], c='blue')
-   
+    plt.axhline(y = pvdetect.max_threshold, color='r', linewidth=1)
+    plt.axhline(y = pvdetect.min_threshold, color='b', linewidth=1)
     plt.show()
     
