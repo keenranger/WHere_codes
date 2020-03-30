@@ -9,7 +9,7 @@ class PeakValleyDetector:
         self.peak_df = pd.DataFrame(columns=("time", "value"))
         self.valley_df = pd.DataFrame(columns=("time", "value"))
         self.lastPeak = np.array([10000000000000000, 0]) #마지막 피크의 시간과 값이 닮겨있음
-        self.lastValley = np.array([100000000000000001 ,20]) #마지막 밸리의 시간과 값이 닮겨있음
+        self.lastValley = np.array([10000000000000000 ,20]) #마지막 밸리의 시간과 값이 닮겨있음
         self.acc = np.zeros(3)
         self.finding = 'peak'
         self.norm_df = pd.DataFrame(columns=("time", "value"))
