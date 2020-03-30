@@ -33,5 +33,6 @@ if __name__ == "__main__":
     plt.scatter(pvdetect.valley_df['time'], pvdetect.valley_df['value'], c='blue')
     plt.axhline(y = pvdetect.max_threshold, color='r', linewidth=1)
     plt.axhline(y = pvdetect.min_threshold, color='b', linewidth=1)
+    plt.savefig('pvdetect.png')
     plt.show()
     
