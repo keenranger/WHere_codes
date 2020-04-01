@@ -23,11 +23,11 @@ if __name__ == "__main__":
     pvdetect = PeakValleyDetector.PeakValleyDetector()
     walker = Walker.Walker()
     
-    for index, row in sensor_df[['time', 'accx', 'accy', 'accz']].iterrows():
+    for index, row in sensor_df[['time', 'accx', 'accy', 'accz', 'gyrox', 'gyroy', 'gyroz']].iterrows():
         if (index % 1000 == 0):
             print("now it`s {0} step.".format(index))
-        pvdetect.step(index, row)
-        walker.step(index, row[0], pvdetect.peak_df.tail(1), pvdetect.valley_df.tail(1))
+        pvdetect.step(index, row[:4])
+        walker.step(index, row[0], row[4:7], pvdetect.peak_df.tail(1), pvdetect.valley_df.tail(1))
     print(pvdetect.peak_df)
     print(pvdetect.valley_df)
     plt.figure(1)
