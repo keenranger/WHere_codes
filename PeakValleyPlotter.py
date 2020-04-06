@@ -41,5 +41,4 @@ class PeakValleyPlotter():
             return temp, temp2, temp3,
         myAnimation = animation.FuncAnimation(self.fig, animate, frames=np.arange(0.0, len(self.pvdetect.norm_df)/10), \
                                         interval=10, blit=True, repeat=False)
-        plt.show()
         myAnimation.save('myAnimation.gif', writer='imagemagick', fps=30)
