@@ -1,8 +1,14 @@
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+from matplotlib import rcParams
 import sqlite3 as sql
 import PeakValleyDetector
 import Walker
+
+rcParams['animation.convert_path'] = r'C:\Program Files\ImageMagick\magick.exe'
+rcParams['animation.ffmpeg_path'] = r'C:\Program Files\ImageMagick\ffmpeg.exe'
 
 if __name__ == "__main__":
     ## sql을 통해 dataframe으로 db 가져오기
@@ -23,19 +29,21 @@ if __name__ == "__main__":
     pvdetect = PeakValleyDetector.PeakValleyDetector()
     walker = Walker.Walker()
     
+
+    
     for index, row in sensor_df[['time', 'accx', 'accy', 'accz', 'gyrox', 'gyroy', 'gyroz']].iterrows():
         if (index % 1000 == 0):
             print("now it`s {0} step.".format(index))
         pvdetect.step(index, row[:4])
-        walker.step(index, row[0], row[4:7], pvdetect.peak_df.tail(1), pvdetect.valley_df.tail(1))
-    print(pvdetect.peak_df.tail())
-    print(pvdetect.valley_df.tail())
-    plt.figure(1)
-    plt.plot(pvdetect.norm_df['time'], pvdetect.norm_df['value'], c='y', linewidth=0.5)
-    plt.scatter(pvdetect.peak_df['time'], pvdetect.peak_df['value'], c='red')
-    plt.scatter(pvdetect.valley_df['time'], pvdetect.valley_df['value'], c='blue')
-    plt.axhline(y = pvdetect.max_threshold, color='r', linewidth=1)
-    plt.axhline(y = pvdetect.min_threshold, color='b', linewidth=1)
-    plt.savefig('pvdetect.png')
+        # walker.step(index, row[0], row[4:7], pvdetect.peak_df.tail(1), pvdetect.valley_df.tail(1))
+
+    fig, ax = plt.subplots()
+    #plt.plot(pvdetect.norm_df['time'], pvdetect.norm_df['value'], c='y', linewidth=0.5)
+    def animate(i):
+        #plt.axvline(x = pvdetect.norm_df['time'].loc[i*10], c='r', linewidth=1)
+        temp, = plt.plot(pvdetect.norm_df['time'].loc[:i*10], pvdetect.norm_df['value'].loc[:i*10], c='y', linewidth=0.5)
+        return temp,
+    myAnimation = animation.FuncAnimation(fig, animate, frames=np.arange(0.0, len(sensor_df)/10), \
+                                    interval=10, blit=True, repeat=False)
     plt.show()
-    
+    #myAnimation.save('myAnimation.gif', writer='imagemagick', fps=60)/
