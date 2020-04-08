@@ -1,6 +1,6 @@
-import PeakValleyDetector
-import PeakValleyPlotter
-import PeakValleyLoader
+from modules import PeakValleyDetector
+from modules import PeakValleyPlotter
+from modules import PeakValleyLoader
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
