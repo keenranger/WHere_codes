@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
     ## sql을 통해 dataframe으로 db 가져오기
-    pvloader = PeakValleyLoader.PeakValleyLoader("./data/0408.db", "cc")
+    pvloader = PeakValleyLoader.PeakValleyLoader("./data/0408.db", "sc")
     sensor_df = pvloader.sensor_df
 
     # 알고리즘엔 쓰이지않고 plot만을 위해 사용되는 부분, 처리속도를 위해 따로 뺌
@@ -27,8 +27,4 @@ if __name__ == "__main__":
     print(len(pvdetect.peak_df))
     print(len(pvdetect.valley_df))
     pvplotter.plot()
-    plt.figure(2)
-    plt.plot(sensor_df[['prox']])
-    plt.show()
-    
 
