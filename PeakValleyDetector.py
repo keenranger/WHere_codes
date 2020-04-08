@@ -10,12 +10,10 @@ class PeakValleyDetector:
         self.valley_df = pd.DataFrame(columns=("time", "value"))
         self.lastPeak = np.array([np.inf, -np.inf]) #마지막 피크의 시간과 값이 닮겨있음
         self.lastValley = np.array([np.inf ,np.inf]) #마지막 밸리의 시간과 값이 닮겨있음
-        self.norm_df = pd.DataFrame(columns=("time", "value"))
 
     def step(self, index, row): #row가져와서 class에 저장하는 부분
         self.current_time = row[0]
         self.euc_norm = np.sqrt( row[1] ** 2 +row[2] ** 2 + row[3] **2)
-        self.norm_df.loc[index] = [self.current_time, self.euc_norm] #plot을 위해 저장
         self.norm_threshold()
 
     def norm_threshold(self): #여기서 norm 값이 threshold 못넘는 값들은 그냥 넘깁니다.
