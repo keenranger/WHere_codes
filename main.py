@@ -4,7 +4,7 @@ import PeakValleyLoader
 
 if __name__ == "__main__":
     ## sql을 통해 dataframe으로 db 가져오기
-    pvloader = PeakValleyLoader.PeakValleyLoader()
+    pvloader = PeakValleyLoader.PeakValleyLoader("./data/headingtest.db", "heading1")
     sensor_df = pvloader.sensor_df
     # 피크 밸리 검출
     pvdetect = PeakValleyDetector.PeakValleyDetector()
