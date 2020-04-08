@@ -6,7 +6,7 @@ class PeakValleyLoader:
         cur = conn.cursor()
         print("Data parsing... ")
         sql_command = 'SELECT time, accx, accy, accz, gyrox, gyroy, gyroz,\
-                magx, magy, magz, yaw, pitch, roll FROM sensordata\
+                magx, magy, magz, yaw, pitch, roll, prox FROM sensordata\
                     WHERE filename = "'+ file_name + '" ORDER BY time'
         if (limit is not None):
             sql_command += " LIMIT + %d" %limit
