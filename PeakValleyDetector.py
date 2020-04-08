@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 class PeakValleyDetector:
-    def __init__(self, min_threshold=9, max_threshold = 11, step_interval = 100):
+    def __init__(self, min_threshold=8.5, max_threshold = 11, step_interval = 100):
         self.min_threshold = min_threshold
         self.max_threshold = max_threshold
         self.step_interval = step_interval
@@ -36,7 +36,8 @@ class PeakValleyDetector:
             self.lastPeak = [np.inf, -np.inf] #시간간격이 부족하거나, 사용했습니다. 비워줘야합니다
         elif (finding == 'valley'):
             self.finding = None
-            self.valley_df.loc[len(self.valley_df)] = [self.lastValley[0], self.lastValley[1]]
+            if (self.lastValley[1] != np.inf): #처음 lastvalley 제외
+                self.valley_df.loc[len(self.valley_df)] = [self.lastValley[0], self.lastValley[1]]
             self.lastValley = [np.inf ,np.inf] #시간간격이 부족하거나, 사용했습니다. 비워줘야합니다
 
     def updater(self):
