@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 class PeakValleyDetector:
-    def __init__(self, min_threshold=8.5, max_threshold = 11, step_interval = 100):
+    def __init__(self, min_threshold=8.5, max_threshold = 11, step_interval = 150):
         self.min_threshold = min_threshold
         self.max_threshold = max_threshold
         self.step_interval = step_interval
