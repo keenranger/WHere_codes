@@ -17,26 +17,24 @@ class PeakValleyDetector:
         self.current_time = row[0]
         self.euc_norm = np.sqrt( row[1] ** 2 +row[2] ** 2 + row[3] **2)
         self.data_array = np.insert(self.data_array[:2], 0, self.euc_norm)
+        self.local_minmax_finder()
+        self.time_before = self.current_time
+
+    def local_minmax_finder(self):
         if self.data_array[1] > self.data_array[0] and\
-            self.data_array[1] >= self.data_array[2]: #양쪽보다 중간값이 크면
-            #local peak
+            self.data_array[1] >= self.data_array[2]: #local peak
             if (self.data_array[1] - self.lastValley[1]) > self.amp_threshold:
                 if ( (self.time_before - self.lastValley[0]) > self.step_interval): 
                     self.updating = 'peak'
                     self.finder("valley")
             self.updater()
         elif self.data_array[1] < self.data_array[0] and\
-            self.data_array[1] <= self.data_array[2]: #양쪽보다 중간값이 작으면
-            #local valley
+            self.data_array[1] <= self.data_array[2]: #local valley
             if (self.lastPeak[1] - self.data_array[1]) > self.amp_threshold:
                 if ( (self.time_before - self.lastPeak[0]) > self.step_interval): #시간간격이 충분하면
                     self.updating = 'valley'
                     self.finder("peak")
             self.updater()
-        self.time_before = self.current_time
-
-    def local_minmax_finder(self):
-        pass
 
     def norm_threshold(self): #여기서 norm 값이 threshold 못넘는 값들은 그냥 넘깁니다.
         if (self.euc_norm > self.max_threshold): #피크 threshold를 넘겼을때
