@@ -7,8 +7,8 @@ import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
     ## sql을 통해 dataframe으로 db 가져오기
-    file_name = "pfh2"
-    pvloader = PeakValleyLoader.PeakValleyLoader("./data/0408.db", file_name)
+    file_name = "nh"
+    pvloader = PeakValleyLoader.PeakValleyLoader("./data/0410.db", file_name)
     sensor_df = pvloader.sensor_df
     #sensor_df = sensor_df.loc[600:2400]
 
@@ -19,6 +19,10 @@ if __name__ == "__main__":
     # 피크 밸리 검출
     pvdetect = PeakValleyDetector.PeakValleyDetector(max_threshold=10.5)
 
+    plt.figure(1)
+    plt.plot(sensor_df['time'], sensor_df['accx'])
+    plt.plot(sensor_df['time'], sensor_df['accy'])
+    plt.plot(sensor_df['time'], sensor_df['accz'])
     
     for index, row in sensor_df[['time', 'accx', 'accy', 'accz', 'gyrox', 'gyroy', 'gyroz']].iterrows():
         if (index % 1000 == 0):
