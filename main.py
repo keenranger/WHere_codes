@@ -17,7 +17,7 @@ if __name__ == "__main__":
     norm_df['time'] = sensor_df['time']
     norm_df['value'] = np.sqrt( sensor_df['accx'] ** 2 + sensor_df['accy'] ** 2 + sensor_df['accz'] **2)
     # 피크 밸리 검출
-    pvdetect = PeakValleyDetector.PeakValleyDetector(max_threshold=10.5)
+    pvdetect = PeakValleyDetector.PeakValleyDetector()
 
     plt.figure(1)
     plt.plot(sensor_df['time'], sensor_df['accx'])
