@@ -40,8 +40,7 @@ class PeakValleyDetector:
             self.peak_df.loc[len(self.peak_df)] = [self.lastPeak[0], self.lastPeak[1]]
             self.lastPeak = [np.inf, -np.inf] #시간간격이 부족하거나, 사용했습니다. 비워줘야합니다
         elif (finding == 'valley'):
-            if (self.lastValley[1] != -np.inf): #처음 lastvalley 제외
-                self.valley_df.loc[len(self.valley_df)] = [self.lastValley[0], self.lastValley[1]]
+            self.valley_df.loc[len(self.valley_df)] = [self.lastValley[0], self.lastValley[1]]
             self.lastValley = [np.inf ,np.inf] #시간간격이 부족하거나, 사용했습니다. 비워줘야합니다
 
     def updater(self):
