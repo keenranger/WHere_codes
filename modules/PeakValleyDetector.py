@@ -14,11 +14,10 @@ class PeakValleyDetector:
         self.updating = "peak"
 
     def step(self, index, row): #row가져와서 class에 저장하는 부분
-        self.current_time = row[0]
         self.euc_norm = np.sqrt( row[1] ** 2 +row[2] ** 2 + row[3] **2)
         self.data_array = np.insert(self.data_array[:2], 0, self.euc_norm)
         self.local_minmax_finder()
-        self.time_before = self.current_time
+        self.time_before = row[0]
 
     def local_minmax_finder(self):
         if self.data_array[1] > self.data_array[0] and\
@@ -34,18 +33,6 @@ class PeakValleyDetector:
                 if ( (self.time_before - self.lastPeak[0]) > self.step_interval): #시간간격이 충분하면
                     self.updating = 'valley'
                     self.finder("peak")
-            self.updater()
-
-    def norm_threshold(self): #여기서 norm 값이 threshold 못넘는 값들은 그냥 넘깁니다.
-        if (self.euc_norm > self.max_threshold): #피크 threshold를 넘겼을때
-            if ( (self.current_time - self.lastValley[0]) > self.step_interval): #시간간격이 충분하면
-                self.updating = 'peak'
-                self.finder("valley") #finder는 한번만 실행하면 됨
-            self.updater()
-        if (self.euc_norm < self.min_threshold): #밸리 threshold 이하일때
-            if ( (self.current_time - self.lastPeak[0]) > self.step_interval): #시간간격이 충분하면
-                self.updating = 'valley'
-                self.finder("peak")
             self.updater()
             
     def finder(self, finding):
