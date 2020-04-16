@@ -21,9 +21,10 @@ if __name__ == "__main__":
     pvdetect = PeakValleyDetector.PeakValleyDetector()
 
     plt.figure(1)
-    plt.plot(sensor_df['time'], sensor_df['accx'],c='blue')
-    plt.plot(sensor_df['time'], sensor_df['accy'],c='green')
-    plt.plot(sensor_df['time'], sensor_df['accz'],c='orange')
+    plt.plot(sensor_df['time'], sensor_df['accx'],c='blue', label='accx')
+    plt.plot(sensor_df['time'], sensor_df['accy'],c='green', label='accy')
+    plt.plot(sensor_df['time'], sensor_df['accz'],c='orange', label='accz')
+    plt.legend(loc='best')
     plt.xlabel('time')
     plt.ylabel('m/s^2')
 
