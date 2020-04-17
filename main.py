@@ -1,6 +1,6 @@
 from modules import PeakValleyDetector
 from modules import PeakValleyPlotter
-from modules import PeakValleyLoader
+from modules import DataLoader
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 if __name__ == "__main__":
     ## sql을 통해 dataframe으로 db 가져오기
     file_name = "cc2"
-    pvloader = PeakValleyLoader.PeakValleyLoader("./data/0414.db", file_name)
+    pvloader = DataLoader.DataLoader("./data/0414.db", file_name)
     sensor_df = pvloader.sensor_df
     sensor_df['time'] = sensor_df['time'] - sensor_df['time'][0] #처음시간으로 빼줌 #시간 0부터 시작
     sensor_df = sensor_df.loc[150:]
