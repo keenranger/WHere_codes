@@ -7,10 +7,11 @@ import matplotlib.pyplot as plt
 import time
 if __name__ == "__main__":
     ## sql을 통해 dataframe으로 db 가져오기
-    file_name = "heading5"
-    pvloader = DataLoader.DataLoader("./data/headingtest.db", file_name)
+    file_name = "wtc4"
+    pvloader = DataLoader.DataLoader("./data/200423-100.db", file_name)
     sensor_df = pvloader.sensor_df
     sensor_df['time'] = sensor_df['time'] - sensor_df['time'][0] #처음시간으로 빼줌 #시간 0부터 시작
+
 
     # 알고리즘엔 쓰이지않고 plot만을 위해 사용되는 부분, 처리속도를 위해 따로 뺌
     norm_df = pd.DataFrame(columns=("time", "value"))
@@ -35,9 +36,18 @@ if __name__ == "__main__":
     pvplotter = PeakValleyPlotter.PeakValleyPlotter(pvdetect, norm_df, file_name)
     print(len(pvdetect.peak_df))
     print(len(pvdetect.valley_df))
-    
-    # for idx, row in pvdetect.peak_df.iterrows():
-    #     if idx >= 5:
-    #         print(row['time'], np.var(np.diff(pvdetect.peak_df.loc[idx-5: idx]['time'])))
     pvplotter.plot()
 
+
+    plt.figure()
+
+    for idx, row in pvdetect.peak_df.iterrows():
+        if idx >= 5:
+            #print(row['time'], np.var(np.diff(pvdetect.peak_df.loc[idx-5: idx]['time'])))
+            plt.scatter(row['time'], np.sqrt(np.var(np.diff(pvdetect.peak_df.loc[idx - 5: idx]['time']), ddof=1)),c='blue')
+            plt.ylim(0, 1000)
+            plt.title(file_name)
+            plt.xlabel('time')
+            plt.ylabel('dev')
+
+    plt.show()
