@@ -12,6 +12,7 @@ if __name__ == "__main__":
     sensor_df = pvloader.sensor_df
     sensor_df['time'] = sensor_df['time'] - sensor_df['time'][0] #처음시간으로 빼줌 #시간 0부터 시작
 
+
     # 알고리즘엔 쓰이지않고 plot만을 위해 사용되는 부분, 처리속도를 위해 따로 뺌
     norm_df = pd.DataFrame(columns=("time", "value"))
     norm_df['time'] = sensor_df['time']
@@ -42,3 +43,16 @@ if __name__ == "__main__":
     #         print(row['time'], np.var(np.diff(pvdetect.peak_df.loc[idx-5: idx]['time'])))
     pvplotter.plot()
 
+
+    plt.figure()
+
+    for idx, row in pvdetect.peak_df.iterrows():
+        if idx >= 5:
+            #print(row['time'], np.var(np.diff(pvdetect.peak_df.loc[idx-5: idx]['time'])))
+            plt.scatter(row['time'], np.sqrt(np.var(np.diff(pvdetect.peak_df.loc[idx - 5: idx]['time']), ddof=1)),c='blue')
+            plt.ylim(0, 1000)
+            plt.title(file_name)
+            plt.xlabel('time')
+            plt.ylabel('dev')
+
+    plt.show()
