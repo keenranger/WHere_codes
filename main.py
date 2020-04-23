@@ -38,21 +38,4 @@ if __name__ == "__main__":
     print(len(pvdetect.valley_df))
     print(len(pvdetect.periodic_peak))
     
-    # for idx, row in pvdetect.peak_df.iterrows():
-    #     if idx >= 5:
-    #         print(row['time'], np.var(np.diff(pvdetect.peak_df.loc[idx-5: idx]['time'])))
     pvplotter.plot()
-
-
-    plt.figure()
-
-    for idx, row in pvdetect.peak_df.iterrows():
-        if idx >= 5:
-            #print(row['time'], np.var(np.diff(pvdetect.peak_df.loc[idx-5: idx]['time'])))
-            plt.scatter(row['time'], np.sqrt(np.var(np.diff(pvdetect.peak_df.loc[idx - 5: idx]['time']), ddof=1)),c='blue')
-            plt.ylim(0, 1000)
-            plt.title(file_name)
-            plt.xlabel('time')
-            plt.ylabel('dev')
-
-    plt.show()
