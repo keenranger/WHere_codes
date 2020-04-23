@@ -7,8 +7,8 @@ import matplotlib.pyplot as plt
 import time
 if __name__ == "__main__":
     ## sql을 통해 dataframe으로 db 가져오기
-    file_name = "heading5"
-    pvloader = DataLoader.DataLoader("./data/headingtest.db", file_name)
+    file_name = "wtc2"
+    pvloader = DataLoader.DataLoader("./data/200422.db", file_name)
     sensor_df = pvloader.sensor_df
     sensor_df['time'] = sensor_df['time'] - sensor_df['time'][0] #처음시간으로 빼줌 #시간 0부터 시작
 
@@ -31,10 +31,11 @@ if __name__ == "__main__":
         if (row[0] % 1000 == 0):
             print("now it`s {0} step.".format(row[0]))
         pvdetect.step(row[0], row[1:5])
-    
+
     pvplotter = PeakValleyPlotter.PeakValleyPlotter(pvdetect, norm_df, file_name)
     print(len(pvdetect.peak_df))
     print(len(pvdetect.valley_df))
+    print(len(pvdetect.periodic_peak))
     
     # for idx, row in pvdetect.peak_df.iterrows():
     #     if idx >= 5:
