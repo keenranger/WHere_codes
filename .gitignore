@@ -1,4 +1,5 @@
 .vscode/
+temp.py
 saves/*
 __pycache__/
 !saves/.gitkeep
