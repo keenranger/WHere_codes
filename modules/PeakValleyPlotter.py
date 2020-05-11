@@ -21,11 +21,11 @@ class PeakValleyPlotter():
                     self.pvdetect.peak_df['value'], c='red')
         plt.scatter(self.pvdetect.valley_df['time'],
                     self.pvdetect.valley_df['value'], c='blue')
-        plt.scatter(self.pvdetect.periodic_peak['time'],
-                    self.pvdetect.periodic_peak['value'], c='green' , marker='*')
+        # plt.scatter(self.pvdetect.periodic_peak['time'],
+        #             self.pvdetect.periodic_peak['value'], c='green' , marker='*')
         plt.xlabel('time')
         plt.ylabel('m/s^2')
-        plt.show()
+        # plt.show()
 
     def save(self):
         plt.scatter(self.pvdetect.peak_df['time'],

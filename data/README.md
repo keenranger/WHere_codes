@@ -28,7 +28,7 @@
 ## 0410
 * 0410t1 -> fastest 로 변경 후 여러모션으로 테스트  
 ( 보고 걷기 - 전화 - 보고 걷기 - 주머니 - 보고걷기 - 스윙 - 보고 걷기)
-* nh : 총 240걸음 보고 전화 보고 주머니 스윙
+* nh : 총 240걸음 보고 전화 주머니 스윙
 * sc2 : swing test 
 * sc3 : swing test 
 
@@ -83,11 +83,17 @@ wtc5 : 제자리에서 발을 딛으며 회전
 |스윙|sc|
 |전화|cc|
 |전화 모션 test|cc2|
+ct1 : 전화모션 테스트
+
+##cpdr text data
+* cpdr_c : 창수
+* cpdr_h : 한결
+* cpdr_j : 정호형
 
 
-
-
-
+    txtloader = TextLoader.TextLoader('./data/cpdr_c_sensordata.txt')
+    sensor_df = txtloader.textData
+    
 # 찾는 방법1
 각각의 시나리오 별로 state를 만들고, state별로 다른 방법으로 peak/valley를 detect한다
 # 찾는 방법2
