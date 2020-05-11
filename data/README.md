@@ -91,8 +91,6 @@ ct1 : 전화모션 테스트
 * cpdr_j : 정호형
 
 
-    txtloader = TextLoader.TextLoader('./data/cpdr_c_sensordata.txt')
-    sensor_df = txtloader.textData
     
 # 찾는 방법1
 각각의 시나리오 별로 state를 만들고, state별로 다른 방법으로 peak/valley를 detect한다

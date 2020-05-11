@@ -19,8 +19,8 @@ class Walker:
         self.time_before = self.time
 
     def CalAngle(self):
-        self.angle_gyro_init[0] += self.gyrox * (self.time - self.time_before) * self.Ms2S
-        self.angle_gyro_init[1] += self.gyrox * (self.time - self.time_before) * self.Ms2S
+        # self.angle_gyro_init[0] += self.gyrox * (self.time - self.time_before) * self.Ms2S
+        # self.angle_gyro_init[1] += self.gyrox * (self.time - self.time_before) * self.Ms2S
         self.angle_gyro_init[2] += self.gyrox * (self.time - self.time_before) * self.Ms2S
         self.angle_gyro.loc[len(self.angle_gyro)] = [self.time,
                                                      np.rad2deg(self.angle_gyro_init[0]),

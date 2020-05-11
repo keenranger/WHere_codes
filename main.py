@@ -12,11 +12,8 @@ if __name__ == "__main__":
     ## sql을 통해 dataframe으로 db 가져오기
     file_name = "prc"
     pvloader = DataLoader.DataLoader("./data/200504-50.db", file_name)
-    # txtloader = TextLoader.TextLoader('./data/cpdr_c_sensordata.txt')
-    # print(txtloader.textData)
-
+    pvloader.DBLoader()
     sensor_df = pvloader.sensor_df
-    # sensor_df = txtloader.textData[50:]
     sensor_df['time'] = sensor_df['time'] - sensor_df['time'][0]  # 처음시간으로 빼줌 #시간 0부터 시작
 
     # 알고리즘엔 쓰이지않고 plot만을 위해 사용되는 부분, 처리속도를 위해 따로 뺌
