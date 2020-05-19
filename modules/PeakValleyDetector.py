@@ -21,15 +21,16 @@ class PeakValleyDetector:
         self.lastValley = np.array([-np.inf, 7])  # 마지막 밸리의 시간과 값이 닮겨있음
         self.lastAcc = np.array([np.inf, -np.inf, -np.inf, -np.inf])
         self.updating = "peak"
+        self.step_count = 0
 
     def step(self, index, row):  # row가져와서 class에 저장하는 부분
-        self.acc_sq_sum = row[1] ** 2 + row[2] ** 2 + row[3] ** 2
+        self.acc_sq_sum = row[1] ** 2 + row[2] ** 2 + row[3] ** 2 #row[1] : x ,row[2] : y, row[3] : z
         self.euc_norm = np.sqrt(self.acc_sq_sum)
         self.data_array = np.insert(self.data_array[:2], 0, self.euc_norm)
         if self.acc_sq_sum != 0:
-            self.ax_data_array = np.insert(self.ax_data_array[:2], 0, (row[1] ** 2) / self.acc_sq_sum)
-            self.ay_data_array = np.insert(self.ay_data_array[:2], 0, (row[2] ** 2) / self.acc_sq_sum)
-            self.az_data_array = np.insert(self.az_data_array[:2], 0, (row[3] ** 2) / self.acc_sq_sum)
+            self.ax_data_array = np.insert(self.ax_data_array[:2], 0, np.sign(row[1]) * (row[1] ** 2) / self.acc_sq_sum)
+            self.ay_data_array = np.insert(self.ay_data_array[:2], 0, np.sign(row[2]) * (row[2] ** 2) / self.acc_sq_sum)
+            self.az_data_array = np.insert(self.az_data_array[:2], 0, np.sign(row[3]) * (row[3] ** 2) / self.acc_sq_sum)
 
         self.local_minmax_finder()
         self.time_before = row[0]
@@ -56,6 +57,7 @@ class PeakValleyDetector:
             self.peak_df.loc[len(self.peak_df)] = [self.lastPeak[0], self.lastPeak[1]]
             self.acc_sq_df.loc[len(self.acc_sq_df)] = [self.lastAcc[0], self.lastAcc[1], self.lastAcc[2],
                                                        self.lastAcc[3]]
+            self.step_count += 1
             self.lastPeak = [np.inf, -np.inf]  # 시간간격이 부족하거나, 사용했습니다. 비워줘야합니다
             self.peroid_checker()
         elif finding == 'valley':

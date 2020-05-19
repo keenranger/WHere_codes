@@ -3,10 +3,9 @@ import pandas as pd
 
 
 class DataLoader:
-    def __init__(self, file_location, file_name, seperator=' '):
+    def __init__(self, file_location, file_name):
         self.file_location = file_location
         self.file_name = file_name
-        self.sep = seperator
         self.sensor_df = pd.DataFrame
 
     def DBLoader(self):
@@ -22,12 +21,14 @@ class DataLoader:
         conn.close()
         print("Data parsing done!")
 
-    def TxTLoader(self):
+    def TxTLoader(self, seperator= ' '):
+        self.sep = seperator
         print("Data parsing... ")
         self.sensor_df = pd.read_csv(self.file_location,
-                                     sep=self.sep,
-                                     names=['none', 'time', 'accx', 'accy', 'accz', 'magx', 'magy', 'magz', 'yaw',
+                                     sep= '\t',
+                                     names=['time', 'accx', 'accy', 'accz', 'magx', 'magy', 'magz', 'yaw',
                                             'pitch',
-                                            'roll', 'gyrox', 'gyroy', 'gyroz', 'pres', 'gps1', 'gps2', 'gps3', 'gps4',
-                                            'gps5'])
+                                            'roll', 'gyrox', 'gyroy', 'gyroz', 'pres', 'rss1', 'rss2', 'rss3', 'rss4',
+                                            'rss5','none'])
+
         print("Data parsing done!")

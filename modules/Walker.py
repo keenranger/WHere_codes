@@ -1,31 +1,25 @@
 import numpy as np
 import pandas as pd
 
+
 class Walker:
-    def __init__(self, initial_heading = 0, step_length = 70):
-        self.initial_heading = initial_heading
+    def __init__(self, step_length=0.65):
         self.step_length = step_length
-        self.angle_gyro = pd.DataFrame(columns=("time", "value_x", "value_y", "value_z"))
-        self.angle_gyro_init = [0, 0, 0]
-        self.time_before = 0
-        self.Ms2S = 0.001
+        self.step_count = 0
+        self.pre_step_count = 0
+        self.heading = 0
+        self.pdr_df = pd.DataFrame(columns=('pos_x', 'pos_y'))
+        self.pos_xy = [0, 0]
 
-    def step(self, index, time, row, df1, df2):
-        self.time = time
-        self.gyrox = row[0]
-        self.gyroy = row[1]
-        self.gyroz = row[2]
-        self.CalAngle()
-        self.time_before = self.time
+    def step(self, step_count, heading):
+        self.PDR(step_count, heading)
 
-    def CalAngle(self):
-        # self.angle_gyro_init[0] += self.gyrox * (self.time - self.time_before) * self.Ms2S
-        # self.angle_gyro_init[1] += self.gyrox * (self.time - self.time_before) * self.Ms2S
-        self.angle_gyro_init[2] += self.gyrox * (self.time - self.time_before) * self.Ms2S
-        self.angle_gyro.loc[len(self.angle_gyro)] = [self.time,
-                                                     np.rad2deg(self.angle_gyro_init[0]),
-                                                     np.rad2deg(self.angle_gyro_init[1]),
-                                                     np.rad2deg(self.angle_gyro_init[2])]
-
-
-
+    def PDR(self, step_count, heading):
+        if step_count == 0: #초기 걸음이 발생되지 않았을때 좌표 (0,0)
+            self.pdr_df.loc[step_count] = [self.pos_xy[0], self.pos_xy[1]]
+        else:
+            if step_count - self.pre_step_count != 0:
+                self.pos_xy[0] += np.cos(heading) * self.step_length
+                self.pos_xy[1] += np.sin(heading) * self.step_length
+                self.pdr_df.loc[step_count] = [self.pos_xy[0], self.pos_xy[1]]
+                self.pre_step_count = step_count
