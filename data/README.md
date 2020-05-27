@@ -98,7 +98,9 @@ ct1 : 전화모션 테스트
 * cpdr_h : 한결
 * cpdr_j : 정호형
 
-
+## 0520 tilting test 50Hz
+* 0520headingtest.text : 손바닥위 보고걷기 L1 2층 두바퀴
+* 0520headingtest_tilting.text : tilting 후 보고걷기 L1 2층 두바퀴
     
 # 찾는 방법1
 각각의 시나리오 별로 state를 만들고, state별로 다른 방법으로 peak/valley를 detect한다
