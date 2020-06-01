@@ -25,7 +25,7 @@ class Walker:
                 self.pre_step_count = step_count
 
     def PDR_plot(self, file_name):
-        plt.plot(self.pdr_df['pos_x'], self.pdr_df['pos_y'],marker='*')
+        plt.plot(self.pdr_df['pos_x'], self.pdr_df['pos_y'])
         plt.xlabel('m')
         plt.ylabel('m')
         plt.axis('equal')
