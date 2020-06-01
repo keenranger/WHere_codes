@@ -30,5 +30,4 @@ class DataLoader:
                                             'pitch',
                                             'roll', 'gyrox', 'gyroy', 'gyroz', 'pres', 'rss1', 'rss2', 'rss3', 'rss4',
                                             'rss5'])
-
         print("Data parsing done!")

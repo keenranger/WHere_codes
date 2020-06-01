@@ -1,8 +1,6 @@
 #########Heading detect##################
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-
 
 class HeadingDetector:
     def __init__(self):
@@ -125,3 +123,4 @@ class HeadingDetector:
         plt.xlabel('time')
         plt.ylabel('degree')
         plt.title(file_name)
+

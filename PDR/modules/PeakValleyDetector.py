@@ -32,6 +32,7 @@ class PeakValleyDetector:
             self.mr_y_array = np.insert(self.mr_y_array[:2], 0, np.sign(row[2]) * (row[2] ** 2) / self.acc_sq_sum)
             self.mr_z_array = np.insert(self.mr_z_array[:2], 0, np.sign(row[3]) * (row[3] ** 2) / self.acc_sq_sum)
 
+
         self.local_minmax_finder()
         self.time_before = row[0]
 
@@ -52,7 +53,6 @@ class PeakValleyDetector:
                     self.finder("peak")
             self.updater()
 
-
     def finder(self, finding):
         if finding == 'peak':
             self.peak_df.loc[len(self.peak_df)] = [self.lastPeak[0], self.lastPeak[1]]
@@ -72,6 +72,7 @@ class PeakValleyDetector:
                 self.lastPeak = [self.time_before,
                                  self.data_array[1]]  # 최댓값으로 업데이트
                 self.lastAcc = [self.time_before, self.mr_x_array[1], self.mr_y_array[1], self.mr_z_array[1]]
+
         elif self.updating == 'valley':
             if self.data_array[1] < self.lastValley[1]:  # 최솟값이 아니라면
                 self.lastValley = [self.time_before,
