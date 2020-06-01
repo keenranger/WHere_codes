@@ -103,7 +103,8 @@ ct1 : 전화모션 테스트
 * h1 : 그냥 두바퀴
 * h2 : 기울여서 두바퀴
 
-## 0520headingtest - 범주형 app
+## 0520headingtest - 범주형 app 
+* 시간 ns 로 출력
 * 0520headingtest : 지면에 수평하게 L1 2층 두바퀴 
 * 0520heading_tiltingtest : pitch 약 40도 기울여서 두바퀴 
 

@@ -42,8 +42,8 @@ class HeadingCalculator:
         self.processed_gyro = self.Rotation_m(self.roll, self.pitch, gyro)
 
         # 처리된 자이로 적분하면 heading이 나온다
-        self.heading += gyro[2] * (self.time - self.time_before) * self.Ns2S
-        self.processed_heading += self.processed_gyro[2] * (self.time - self.time_before) * self.Ns2S
+        self.heading += gyro[2] * (self.time - self.time_before) * self.Ms2S
+        self.processed_heading += self.processed_gyro[2] * (self.time - self.time_before) * self.Ms2S
 
         # 초기 시간이 0이 아닐 수 있다.
         if self.flag == 0:

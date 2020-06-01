@@ -11,12 +11,12 @@ import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
     ## sql을 통해 dataframe으로 db 가져오기
-    file_name = "h2"
-    pvloader = DataLoader.DataLoader("c:/Users/user/Desktop/ssrc_PDR/PDR/data/0520headingtest.txt", file_name)
-    pvloader.TxTLoader()
+    file_name = "rp0"
+    pvloader = DataLoader.DataLoader("c:/Users/user/Desktop/ssrc_PDR/PDR/data/200601_c.db", file_name)
+    pvloader.DBLoader()
     sensor_df = pvloader.sensor_df
     # sensor_df['time'] = sensor_df['time'] - sensor_df['time'][0]  # 처음시간으로 빼줌 #시간 0부터 시작
-    sensor_df = sensor_df[600:]
+    sensor_df = sensor_df[0:]
 
     # 알고리즘엔 쓰이지않고 plot만을 위해 사용되는 부분, 처리속도를 위해 따로 뺌
     norm_df = pd.DataFrame(columns=("time", "value"))
