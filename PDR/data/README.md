@@ -103,6 +103,25 @@ ct1 : 전화모션 테스트
 * h1 : 그냥 두바퀴
 * h2 : 기울여서 두바퀴
 
+## 0520headingtest - 범주형 app
+* 0520headingtest : 지면에 수평하게 L1 2층 두바퀴 
+* 0520heading_tiltingtest : pitch 약 40도 기울여서 두바퀴 
+
+## 200601
+* 200601_c : 창수 
+* 200601_h : 한결 
+
+|구분|자세|
+|---|---|
+|rp0| roll,pitch 0도|
+|rr4| roll 시계방향 45도|
+|rr9| roll 시계방향 90도|
+|rl4| roll 반시계 45도|
+|rl9| roll 반시계 90도|
+|pp4| pitch 양수방향(휴대폰 상단이 위로) 45도||
+|pp9| pitch 양수방향 90도|
+|rp4| roll, pitch 동시에 45도정도|
+
     
 # 찾는 방법1
 각각의 시나리오 별로 state를 만들고, state별로 다른 방법으로 peak/valley를 detect한다
