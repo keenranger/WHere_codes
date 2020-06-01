@@ -15,7 +15,7 @@ class Walker:
         self.PDR(step_count, heading)
 
     def PDR(self, step_count, heading):
-        if step_count == 0: #초기 걸음이 발생되지 않았을때 좌표 (0,0)
+        if step_count == 0:  # 초기 걸음이 발생되지 않았을때 좌표 (0,0)
             self.pdr_df.loc[step_count] = [self.pos_xy[0], self.pos_xy[1]]
         else:
             if step_count - self.pre_step_count != 0:
@@ -25,7 +25,7 @@ class Walker:
                 self.pre_step_count = step_count
 
     def PDR_plot(self, file_name):
-        plt.plot(self.pdr_df['pos_x'], self.pdr_df['pos_y'])
+        plt.plot(self.pdr_df['pos_x'], self.pdr_df['pos_y'], marker="*")
         plt.xlabel('m')
         plt.ylabel('m')
         plt.axis('equal')

@@ -1,9 +1,10 @@
-from modules import PeakValleyDetector
-from modules import PeakValleyPlotter
-from modules import SensorPlotter
-from modules import DataLoader
-from modules import HeadingDetector
-from modules import Walker
+from PDR.modules import PeakValleyDetector
+from PDR.modules import PeakValleyPlotter
+from PDR.modules import SensorPlotter
+from PDR.modules import DataLoader
+from PDR.modules import HeadingCalculator
+from PDR.modules import Walker
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -11,7 +12,7 @@ import matplotlib.pyplot as plt
 if __name__ == "__main__":
     ## sql을 통해 dataframe으로 db 가져오기
     file_name = "h2"
-    pvloader = DataLoader.DataLoader("data/0520headingtest.txt", file_name)
+    pvloader = DataLoader.DataLoader("c:/Users/user/Desktop/ssrc_PDR/PDR/data/0520headingtest.txt", file_name)
     pvloader.TxTLoader()
     sensor_df = pvloader.sensor_df
     # sensor_df['time'] = sensor_df['time'] - sensor_df['time'][0]  # 처음시간으로 빼줌 #시간 0부터 시작
@@ -21,7 +22,6 @@ if __name__ == "__main__":
     norm_df = pd.DataFrame(columns=("time", "value"))
     tilting_df = pd.DataFrame(columns=("time", "roll", 'pitch'))
     tilting_avg_df = pd.DataFrame(columns=("time", "roll", "pitch"))
-    grav_acc_df = pd.DataFrame(columns=("time", "value_x", "value_y", "value_z"))
 
     norm_df['time'] = sensor_df['time']
     norm_df['value'] = np.sqrt(sensor_df['accx'] ** 2 + sensor_df['accy'] ** 2 + sensor_df['accz'] ** 2)
@@ -47,11 +47,10 @@ if __name__ == "__main__":
     # 피크 밸리 검출
     pvdetect = PeakValleyDetector.PeakValleyDetector()
     # heading 검출
-    hdetect = HeadingDetector.HeadingDetector()
+    hdetect = HeadingCalculator.HeadingCalculator()
     # PDR
     walker = Walker.Walker()
     processed_walker = Walker.Walker()
-    processed_walker2 = Walker.Walker()
 
     for row in sensor_df[['time', 'accx', 'accy', 'accz', 'gyrox', 'gyroy', 'gyroz', 'roll', 'pitch']].itertuples():
         if row[0] % 1000 == 0:
@@ -60,7 +59,6 @@ if __name__ == "__main__":
         hdetect.step(row[0], row[1:10], pvdetect.step_count)  # int(len(pvdetect.peak_df)) = stepcount
         walker.step(pvdetect.step_count, hdetect.heading)
         processed_walker.step(pvdetect.step_count, hdetect.processed_heading)
-        processed_walker2.step(pvdetect.step_count, hdetect.processed_heading2)
 
     print(len(pvdetect.peak_df))
     print(len(pvdetect.valley_df))
@@ -77,5 +75,4 @@ if __name__ == "__main__":
     plt.figure()
     walker.PDR_plot(file_name)
     processed_walker.PDR_plot(file_name)
-    processed_walker2.PDR_plot(file_name)
     plt.show()
