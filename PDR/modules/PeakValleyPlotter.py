@@ -6,7 +6,7 @@ rcParams['animation.convert_path'] = r'C:\Program Files\ImageMagick\magick.exe'
 rcParams['animation.ffmpeg_path'] = r'C:\Program Files\ImageMagick\ffmpeg.exe'
 
 
-class PeakValleyPlotter():
+class PeakValleyPlotter:
     def __init__(self, pvdetect, norm_df, file_name):
         self.pvdetect = pvdetect
         self.fig, self.ax = plt.subplots()

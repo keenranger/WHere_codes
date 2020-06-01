@@ -8,7 +8,7 @@ class DataLoader:
         self.file_name = file_name
         self.sensor_df = pd.DataFrame
 
-    def DBLoader(self):
+    def DBLoader(self):  #Dataframe을 읽기위한 부분
         conn = sql.connect(self.file_location)
         cur = conn.cursor()
         print("Data parsing... ")
@@ -21,14 +21,13 @@ class DataLoader:
         conn.close()
         print("Data parsing done!")
 
-    def TxTLoader(self, seperator= ' '):
+    def TxTLoader(self, seperator=' '): #textfile을 읽기위한 부분
         self.sep = seperator
         print("Data parsing... ")
         self.sensor_df = pd.read_csv(self.file_location,
-                                     sep= '\t',
-                                     names=['time', 'accx', 'accy', 'accz', 'magx', 'magy', 'magz', 'yaw',
+                                     sep= self.sep,
+                                     names=['none','time', 'accx', 'accy', 'accz', 'magx', 'magy', 'magz', 'yaw',
                                             'pitch',
                                             'roll', 'gyrox', 'gyroy', 'gyroz', 'pres', 'rss1', 'rss2', 'rss3', 'rss4',
-                                            'rss5','none'])
-
+                                            'rss5'])
         print("Data parsing done!")

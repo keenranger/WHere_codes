@@ -13,9 +13,9 @@ class PeakValleyDetector:
         self.acc_sq_sum = 0
         self.euc_norm = 0
         self.data_array = np.array([np.nan, np.nan, np.nan])
-        self.ax_data_array = np.array([np.nan, np.nan, np.nan])
-        self.ay_data_array = np.array([np.nan, np.nan, np.nan])
-        self.az_data_array = np.array([np.nan, np.nan, np.nan])
+        self.mr_x_array = np.array([np.nan, np.nan, np.nan])    # Motion ratio 를 구하기위한 array
+        self.mr_y_array = np.array([np.nan, np.nan, np.nan])
+        self.mr_z_array = np.array([np.nan, np.nan, np.nan])
         self.time_before = -np.inf
         self.lastPeak = np.array([np.inf, -np.inf])  # 마지막 피크의 시간과 값이 닮겨있음
         self.lastValley = np.array([-np.inf, 7])  # 마지막 밸리의 시간과 값이 닮겨있음
@@ -24,13 +24,14 @@ class PeakValleyDetector:
         self.step_count = 0
 
     def step(self, index, row):  # row가져와서 class에 저장하는 부분
-        self.acc_sq_sum = row[1] ** 2 + row[2] ** 2 + row[3] ** 2 #row[1] : x ,row[2] : y, row[3] : z
+        self.acc_sq_sum = row[1] ** 2 + row[2] ** 2 + row[3] ** 2   # row[1] : x ,row[2] : y, row[3] : z
         self.euc_norm = np.sqrt(self.acc_sq_sum)
         self.data_array = np.insert(self.data_array[:2], 0, self.euc_norm)
         if self.acc_sq_sum != 0:
-            self.ax_data_array = np.insert(self.ax_data_array[:2], 0, np.sign(row[1]) * (row[1] ** 2) / self.acc_sq_sum)
-            self.ay_data_array = np.insert(self.ay_data_array[:2], 0, np.sign(row[2]) * (row[2] ** 2) / self.acc_sq_sum)
-            self.az_data_array = np.insert(self.az_data_array[:2], 0, np.sign(row[3]) * (row[3] ** 2) / self.acc_sq_sum)
+            self.mr_x_array = np.insert(self.mr_x_array[:2], 0, np.sign(row[1]) * (row[1] ** 2) / self.acc_sq_sum)
+            self.mr_y_array = np.insert(self.mr_y_array[:2], 0, np.sign(row[2]) * (row[2] ** 2) / self.acc_sq_sum)
+            self.mr_z_array = np.insert(self.mr_z_array[:2], 0, np.sign(row[3]) * (row[3] ** 2) / self.acc_sq_sum)
+
 
         self.local_minmax_finder()
         self.time_before = row[0]
@@ -70,7 +71,8 @@ class PeakValleyDetector:
             if self.data_array[1] > self.lastPeak[1]:  # 최댓값이 아니라면
                 self.lastPeak = [self.time_before,
                                  self.data_array[1]]  # 최댓값으로 업데이트
-                self.lastAcc = [self.time_before, self.ax_data_array[1], self.ay_data_array[1], self.az_data_array[1]]
+                self.lastAcc = [self.time_before, self.mr_x_array[1], self.mr_y_array[1], self.mr_z_array[1]]
+
         elif self.updating == 'valley':
             if self.data_array[1] < self.lastValley[1]:  # 최솟값이 아니라면
                 self.lastValley = [self.time_before,
