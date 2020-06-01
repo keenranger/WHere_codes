@@ -14,10 +14,13 @@ class HeadingCalculator:
         self.time = 0
         self.heading_df = pd.DataFrame(columns=("time", "value"))  # heading을 저장하기 위한 DataFrame
         self.processed_heading_df = pd.DataFrame(columns=("time", "value"))
+        self.rollpitch_df = pd.DataFrame(columns=("time", "roll", "pitch"))
         self.step_count = 0
         self.step_count_before = 0
         self.roll = 0
         self.pitch = 0
+        self.roll_out = 0
+        self.pitch_out = 0
         self.RotationX = np.zeros((3, 3))
         self.RotationY = np.zeros((3, 3))
         self.Ms2S = 10 ** -3
@@ -39,6 +42,7 @@ class HeadingCalculator:
 
     def cal_heading(self, acc, gyro):  # Calculation heading
         self.tilting(acc)
+        self.rollpitch_df.loc[len(self.rollpitch_df)] = [self.time, self.roll * self.RtoD, self.pitch * self.RtoD]
         self.processed_gyro = self.Rotation_m(self.roll, self.pitch, gyro)
 
         # 처리된 자이로 적분하면 heading이 나온다
@@ -59,8 +63,8 @@ class HeadingCalculator:
             self.step_count_before = self.step_count
 
     def tilting(self, acc):  # Calculation tilting
-        self.roll = self.Moving_avg("roll", np.arctan(acc[0] / np.sqrt(acc[1] ** 2 + acc[2] ** 2)), 1)
-        self.pitch = self.Moving_avg("pitch", np.arctan(acc[1] / np.sqrt(acc[0] ** 2 + acc[2] ** 2)), 1)
+        self.roll = self.Moving_avg("roll", np.arctan(acc[0] / np.sqrt(acc[1] ** 2 + acc[2] ** 2)), 30)
+        self.pitch = self.Moving_avg("pitch", np.arctan(acc[1] / np.sqrt(acc[0] ** 2 + acc[2] ** 2)), 30)
 
     def Rotation_m(self, roll, pitch, gyro):  # RotationMatrix
         self.RotationX = [[1, 0, 0], [0, np.cos(pitch), -np.sin(pitch)], [0, np.sin(pitch), np.cos(pitch)]]
@@ -74,18 +78,18 @@ class HeadingCalculator:
             self.avg_value_roll.append(value)
             value_len = len(self.avg_value_roll)
             if value_len != 0:
-                if value_len < windowsize:
+                if value_len <= windowsize:
                     return sum(self.avg_value_roll) / value_len
 
                 else:
                     self.avg_value_roll = self.avg_value_roll[1:]
-                    return sum(self.avg_value_roll) / value_len
+                    return sum(self.avg_value_roll) / windowsize
 
         if value_name == 'pitch':
             self.avg_value_pitch.append(value)
             value_len = len(self.avg_value_pitch)
             if value_len != 0:
-                if value_len < windowsize:
+                if value_len <= windowsize:
                     return sum(self.avg_value_pitch) / value_len
 
                 else:
@@ -98,5 +102,6 @@ class HeadingCalculator:
         plt.plot(self.processed_heading_df['time'], self.processed_heading_df['value'], c='green')
         plt.xlabel('time')
         plt.ylabel('degree')
+
         plt.title(file_name)
 

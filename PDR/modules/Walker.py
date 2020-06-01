@@ -24,11 +24,12 @@ class Walker:
                 self.pdr_df.loc[step_count] = [self.pos_xy[0], self.pos_xy[1]]
                 self.pre_step_count = step_count
 
-    def PDR_plot(self, file_name):
-        plt.plot(self.pdr_df['pos_x'], self.pdr_df['pos_y'], marker="*")
+    def PDR_plot(self, file_name, legend=""):
+        plt.plot(self.pdr_df['pos_x'], self.pdr_df['pos_y'], marker="o", markersize=2, linewidth=1, label=legend)
         plt.xlabel('m')
         plt.ylabel('m')
         plt.axis('equal')
+        plt.legend(loc='best')
         # plt.xlim(-15, 55)
         # plt.ylim(-15, 55)
 

@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
     ## sql을 통해 dataframe으로 db 가져오기
-    file_name = "rp0"
+    file_name = "rr4"
     pvloader = DataLoader.DataLoader("c:/Users/user/Desktop/ssrc_PDR/PDR/data/200601_c.db", file_name)
     pvloader.DBLoader()
     sensor_df = pvloader.sensor_df
@@ -29,20 +29,22 @@ if __name__ == "__main__":
     tilting_df['time'] = sensor_df['time']
     tilting_avg_df['time'] = sensor_df['time']
 
-    #   휴대폰에서 제공하는 roll, pitch 와 회전방향을 맞추기위해 -
+    #
     tilting_df['roll'] = np.rad2deg(
         np.arctan(sensor_df['accx'] / np.sqrt(sensor_df['accy'] ** 2 + sensor_df['accz'] ** 2)))
     tilting_df['pitch'] = np.rad2deg(
         np.arctan(sensor_df['accy'] / np.sqrt(sensor_df['accx'] ** 2 + sensor_df['accz'] ** 2)))
 
-    plt.figure()
-    plt.plot(tilting_df['time'], tilting_df['roll'], c='blue')
-    plt.plot(tilting_df['time'], tilting_df['pitch'], c='green')
-    plt.plot(sensor_df['time'], np.rad2deg(sensor_df['roll']), c='orange')
-    plt.plot(sensor_df['time'], np.rad2deg(sensor_df['pitch']), c='cyan')
+    tilting_avg_df['roll'] = tilting_df['roll'].rolling(30, min_periods=1).mean()
 
-    # tilting_avg_df['roll'] = tilting_df['roll'].rolling(30, min_periods=1).mean()
-    # tilting_avg_df['pitch'] = tilting_df['pitch'].rolling(30, min_periods=1).mean()
+    # plt.figure()
+    # plt.plot(tilting_df['time'], tilting_df['roll'], c='blue', label="roll")
+    # plt.plot(tilting_df['time'], tilting_df['pitch'], c='green', label="pitch")
+    # plt.plot(sensor_df['time'], np.rad2deg(sensor_df['roll']), c='orange', label="roll_out")
+    # plt.plot(sensor_df['time'], np.rad2deg(sensor_df['pitch']), c='cyan', label="pitch_out")
+    # plt.xlabel('time')
+    # plt.ylabel('degree')
+    # plt.legend(loc='best')
 
     # 피크 밸리 검출
     pvdetect = PeakValleyDetector.PeakValleyDetector()
@@ -64,15 +66,20 @@ if __name__ == "__main__":
     print(len(pvdetect.valley_df))
     print(len(pvdetect.periodic_peak))
 
+    plt.figure()
+    plt.plot(tilting_avg_df['time'], tilting_avg_df['roll'], c='green',linewidth=2.5)
+    plt.plot(hdetect.rollpitch_df['time'], hdetect.rollpitch_df['roll'], c='orange')
+
     sensorplot = SensorPlotter.SensorPlotter(sensor_df, file_name)
-    sensorplot.AccPlot()
-    sensorplot.GyroPlot()
+    # sensorplot.AccPlot()
+    # sensorplot.GyroPlot()
 
     pvplotter = PeakValleyPlotter.PeakValleyPlotter(pvdetect, norm_df, file_name)
-    pvplotter.plot()  # norm & peak & valley plot
-    hdetect.Heading_plot(file_name)
+    # pvplotter.plot()  # norm & peak & valley plot
+    # hdetect.Heading_plot(file_name)
 
-    plt.figure()
-    walker.PDR_plot(file_name)
-    processed_walker.PDR_plot(file_name)
+    # plt.figure()
+    # walker.PDR_plot(file_name, "Body.f")
+    # processed_walker.PDR_plot(file_name, "Nav.f")
+
     plt.show()
