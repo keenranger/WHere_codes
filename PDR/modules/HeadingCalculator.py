@@ -68,8 +68,8 @@ class HeadingCalculator:
         self.pitch = self.Moving_avg("pitch", np.arctan(acc[1] / np.sqrt(acc[0] ** 2 + acc[2] ** 2)), self.windowsize)
 
     def Rotation_m(self, roll, pitch, gyro):  # RotationMatrix
-        self.RotationX = [[1, 0, 0], [0, np.cos(pitch), -np.sin(pitch)], [0, np.sin(pitch), np.cos(pitch)]]
-        self.RotationY = [[np.cos(roll), 0, np.sin(roll)], [0, 1, 0], [-np.sin(roll), 0, np.cos(roll)]]
+        self.RotationX = [[1, 0, 0], [0, np.cos(pitch), np.sin(pitch)], [0, -np.sin(pitch), np.cos(pitch)]]
+        self.RotationY = [[np.cos(roll), 0, -np.sin(roll)], [0, 1, 0], [np.sin(roll), 0, np.cos(roll)]]
 
         rotation_gyro = np.matmul(self.RotationX, np.matmul(self.RotationY, gyro))
         return rotation_gyro
