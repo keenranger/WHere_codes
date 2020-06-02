@@ -28,7 +28,7 @@ class HeadingCalculator:
         self.RtoD = 180 / np.pi
         self.DtoR = np.pi / 180
         self.flag = 0
-        self.windowsize = 1
+        self.windowsize = 10
         self.avg_value_roll = [] # Moving avg 를 위한 데이터 저장소
         self.avg_value_pitch = [] # Moving avg 를 위한 데이터 저장소
 
@@ -47,8 +47,8 @@ class HeadingCalculator:
         self.processed_gyro = self.Rotation_m(self.roll, self.pitch, gyro)
 
         # 처리된 자이로 적분하면 heading이 나온다
-        self.heading += gyro[2] * (self.time - self.time_before) * self.Ns2S
-        self.processed_heading += self.processed_gyro[2] * (self.time - self.time_before) * self.Ns2S
+        self.heading += gyro[2] * (self.time - self.time_before) * self.Ms2S
+        self.processed_heading += self.processed_gyro[2] * (self.time - self.time_before) * self.Ms2S
 
         # 초기 시간이 0이 아닐 수 있다.
         if self.flag == 0:
@@ -57,7 +57,8 @@ class HeadingCalculator:
             self.processed_heading2 = 0
             self.flag = 1
 
-        # 걸음이 발생할 때 마다
+        # 걸음이 발생할 때 마다0
+
         if self.step_count - self.step_count_before != 0:
             self.heading_df.loc[self.step_count] = [self.time, self.heading * self.RtoD]
             self.processed_heading_df.loc[self.step_count] = [self.time, self.processed_heading * self.RtoD]
@@ -68,8 +69,8 @@ class HeadingCalculator:
         self.pitch = self.Moving_avg("pitch", np.arctan(acc[1] / np.sqrt(acc[0] ** 2 + acc[2] ** 2)), self.windowsize)
 
     def Rotation_m(self, roll, pitch, gyro):  # RotationMatrix
-        self.RotationX = [[1, 0, 0], [0, np.cos(pitch), np.sin(pitch)], [0, -np.sin(pitch), np.cos(pitch)]]
-        self.RotationY = [[np.cos(roll), 0, -np.sin(roll)], [0, 1, 0], [np.sin(roll), 0, np.cos(roll)]]
+        self.RotationX = [[1, 0, 0], [0, np.cos(pitch), -np.sin(pitch)], [0, np.sin(pitch), np.cos(pitch)]]
+        self.RotationY = [[np.cos(roll), 0, np.sin(roll)], [0, 1, 0], [-np.sin(roll), 0, np.cos(roll)]]
 
         rotation_gyro = np.matmul(self.RotationX, np.matmul(self.RotationY, gyro))
         return rotation_gyro
