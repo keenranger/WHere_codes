@@ -66,6 +66,7 @@ class HeadingCalculator:
     def tilting(self, acc):  # Calculation tilting
         # self.pitch = self.Moving_avg("pitch", -np.arctan(acc[0] / np.sqrt(acc[1] ** 2 + acc[2] ** 2)), self.windowsize)
         # self.roll = self.Moving_avg("roll", np.arctan(acc[1] / np.sqrt(acc[0] ** 2 + acc[2] ** 2)), self.windowsize)
+        pass
 
     def Rotation_m(self, roll, pitch, gyro):  # RotationMatrix
         self.RotationX = [[1, 0, 0], [0, np.cos(roll), -np.sin(roll)], [0, np.sin(roll), np.cos(roll)]]
