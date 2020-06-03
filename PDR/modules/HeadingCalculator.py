@@ -28,7 +28,7 @@ class HeadingCalculator:
         self.RtoD = 180 / np.pi
         self.DtoR = np.pi / 180
         self.flag = 0
-        self.windowsize = 10
+        self.windowsize = 30
         self.avg_value_roll = [] # Moving avg 를 위한 데이터 저장소
         self.avg_value_pitch = [] # Moving avg 를 위한 데이터 저장소
 
@@ -57,8 +57,7 @@ class HeadingCalculator:
             self.processed_heading2 = 0
             self.flag = 1
 
-        # 걸음이 발생할 때 마다0
-
+        # 걸음이 발생할 때 마다
         if self.step_count - self.step_count_before != 0:
             self.heading_df.loc[self.step_count] = [self.time, self.heading * self.RtoD]
             self.processed_heading_df.loc[self.step_count] = [self.time, self.processed_heading * self.RtoD]
@@ -72,7 +71,8 @@ class HeadingCalculator:
         self.RotationX = [[1, 0, 0], [0, np.cos(pitch), -np.sin(pitch)], [0, np.sin(pitch), np.cos(pitch)]]
         self.RotationY = [[np.cos(roll), 0, np.sin(roll)], [0, 1, 0], [-np.sin(roll), 0, np.cos(roll)]]
 
-        rotation_gyro = np.matmul(self.RotationX, np.matmul(self.RotationY, gyro))
+        rotation_gyro = np.matmul(self.RotationX, gyro)
+        rotation_gyro = np.matmul(self.RotationY, rotation_gyro)
         return rotation_gyro
 
     def Moving_avg(self, value_name, value, windowsize):

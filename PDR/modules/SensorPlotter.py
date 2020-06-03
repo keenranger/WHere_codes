@@ -25,6 +25,16 @@ class SensorPlotter:
         plt.ylabel('rad/s')
         plt.title(self.file_name)
 
+    def MagPlot(self):
+        plt.figure()
+        plt.plot(self.sensor_df['time'], self.sensor_df['magx'], c='blue', label='magx')
+        plt.plot(self.sensor_df['time'], self.sensor_df['magy'], c='green', label='magy')
+        plt.plot(self.sensor_df['time'], self.sensor_df['magz'], c='orange', label='magz')
+        plt.legend(loc='best')
+        plt.xlabel('time')
+        plt.ylabel('uT')
+        plt.title(self.file_name)
+
     def EulerPlot(self):
         plt.figure()
         plt.plot(self.sensor_df['time'], self.sensor_df['roll'], c='blue', label='roll')
