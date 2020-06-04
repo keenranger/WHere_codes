@@ -28,7 +28,7 @@ class HeadingCalculator:
         self.RtoD = 180 / np.pi
         self.DtoR = np.pi / 180
         self.flag = 0
-        self.windowsize = 30
+        self.windowsize = 20
         self.avg_value_roll = [] # Moving avg 를 위한 데이터 저장소
         self.avg_value_pitch = [] # Moving avg 를 위한 데이터 저장소
 
@@ -47,7 +47,7 @@ class HeadingCalculator:
         self.processed_gyro = self.Rotation_m(self.roll, self.pitch, gyro)
 
         # 처리된 자이로 적분하면 heading이 나온다
-        self.heading += gyro[2] * (self.time - self.time_before) * self.Ns2S
+        self.heading += gyro[2] * (self.time - self.time_before) * self.Ms2S
         self.processed_heading += self.processed_gyro[2] * (self.time - self.time_before) * self.Ms2S
 
         # 초기 시간이 0이 아닐 수 있다.
@@ -71,8 +71,8 @@ class HeadingCalculator:
         self.RotationX = [[1, 0, 0], [0, np.cos(roll), -np.sin(roll)], [0, np.sin(roll), np.cos(roll)]]
         self.RotationY = [[np.cos(pitch), 0, np.sin(pitch)], [0, 1, 0], [-np.sin(pitch), 0, np.cos(pitch)]]
 
-        rotation_gyro = np.matmul(self.RotationX, gyro)
-        rotation_gyro = np.matmul(self.RotationY, rotation_gyro)
+        rotation_gyro = np.matmul(self.RotationY, gyro)
+        rotation_gyro = np.matmul(self.RotationX, rotation_gyro)
         return rotation_gyro
 
     def Moving_avg(self, value_name, value, windowsize):
@@ -82,7 +82,6 @@ class HeadingCalculator:
             if value_len != 0:
                 if value_len <= windowsize:
                     return sum(self.avg_value_roll) / value_len
-
                 else:
                     self.avg_value_roll = self.avg_value_roll[1:]
                     return sum(self.avg_value_roll) / windowsize
@@ -96,11 +95,12 @@ class HeadingCalculator:
 
                 else:
                     self.avg_value_pitch = self.avg_value_pitch[1:]
-                    return sum(self.avg_value_pitch) / value_len
+                    return sum(self.avg_value_pitch) / windowsize
 
     def Heading_plot(self, file_name):
         plt.figure()
         plt.plot(self.heading_df['time'], self.heading_df['value'], c='blue')
+
         plt.plot(self.processed_heading_df['time'], self.processed_heading_df['value'], c='green')
         plt.xlabel('time')
         plt.ylabel('degree')
