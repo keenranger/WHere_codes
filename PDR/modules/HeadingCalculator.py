@@ -28,7 +28,7 @@ class HeadingCalculator:
         self.RtoD = 180 / np.pi
         self.DtoR = np.pi / 180
         self.flag = 0
-        self.windowsize = 100
+        self.windowsize = 30
         self.avg_value_roll = [] # Moving avg 를 위한 데이터 저장소
         self.avg_value_pitch = [] # Moving avg 를 위한 데이터 저장소
 
@@ -47,7 +47,7 @@ class HeadingCalculator:
         self.processed_gyro = self.Rotation_m(self.roll, self.pitch, gyro)
 
         # 처리된 자이로 적분하면 heading이 나온다
-        self.heading += gyro[2] * (self.time - self.time_before) * self.Ms2S
+        self.heading += gyro[2] * (self.time - self.time_before) * self.Ns2S
         self.processed_heading += self.processed_gyro[2] * (self.time - self.time_before) * self.Ms2S
 
         # 초기 시간이 0이 아닐 수 있다.
@@ -63,8 +63,8 @@ class HeadingCalculator:
             self.step_count_before = self.step_count
 
     def tilting(self, acc):  # Calculation tilting
-        # self.pitch = self.Moving_avg("pitch", -np.arctan(acc[0] / np.sqrt(acc[1] ** 2 + acc[2] ** 2)), self.windowsize)
-        # self.roll = self.Moving_avg("roll", np.arctan(acc[1] / np.sqrt(acc[0] ** 2 + acc[2] ** 2)), self.windowsize)
+        self.pitch = self.Moving_avg("pitch", -np.arctan(acc[0] / np.sqrt(acc[1] ** 2 + acc[2] ** 2)), self.windowsize)
+        self.roll = self.Moving_avg("roll", np.arctan(acc[1] / np.sqrt(acc[0] ** 2 + acc[2] ** 2)), self.windowsize)
         pass
 
     def Rotation_m(self, roll, pitch, gyro):  # RotationMatrix
