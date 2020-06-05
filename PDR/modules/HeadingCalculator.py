@@ -35,7 +35,6 @@ class HeadingCalculator:
         self.avg_value_pitch = []  # Moving avg 를 위한 데이터 저장소
         self.pre_avg_roll = 0
         self.pre_avg_pitch = 0
-        self.pre_avg_data = 0
         self.index_count = 1
 
     def step(self, idx, row, step_count):  # row[0] : time ,row[1,2,3] = acc 3 axis, row[4,5,6] = gyro 3 axis
@@ -45,6 +44,7 @@ class HeadingCalculator:
         self.gyro = [row[4], row[5], row[6]]
         self.cal_heading(self.acc, self.gyro)
 
+        ## averaging F 를 위한 counter
         if self.index_count < self.windowsize:
             self.index_count += 1
         else:
@@ -54,7 +54,7 @@ class HeadingCalculator:
 
     def cal_heading(self, acc, gyro):  # Calculation heading
         self.tilting(acc)
-        self.rollpitch_df.loc[len(self.rollpitch_df)] = [self.time, self.roll * self.RtoD, self.pitch * self.RtoD]
+        #self.rollpitch_df.loc[len(self.rollpitch_df)] = [self.time, self.roll * self.RtoD, self.pitch * self.RtoD]
         self.processed_gyro = self.Rotation_m(self.roll, self.pitch, gyro)
 
         # 처리된 자이로 적분하면 heading이 나온다
@@ -107,6 +107,7 @@ class HeadingCalculator:
                     self.avg_value_pitch = self.avg_value_pitch[1:]
                     return sum(self.avg_value_pitch) / windowsize
 
+
     def Averaging_F(self, data_name, data, windowsize):
         if data_name == "roll":
             if self.index_count == 1:
@@ -133,17 +134,6 @@ class HeadingCalculator:
                 avg_data = self.pre_avg_pitch * (windowsize - 1) / windowsize + data / windowsize
                 self.pre_avg_pitch = avg_data
                 return avg_data
-
-    #     if Index == 1
-    #         AVG_Data = Data;
-    #
-    #     elseif
-    #     Index < Win
-    #     AVG_Data = Prev_AvgData * (Index - 1) / Index + Data / Index;
-    #
-    #     else
-    #     AVG_Data = Prev_AvgData * (Win - 1) / Win + Data / Win;
-    #     end
 
     def Heading_plot(self, file_name):
         plt.figure()
