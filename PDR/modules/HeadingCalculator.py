@@ -43,7 +43,7 @@ class HeadingCalculator:
         self.index_count = 1
 
     # row[0] : time ,row[1,2,3] = acc 3 axis, row[4,5,6] = gyro 3 axis
-    # row[7,8,9] = mag 3 axis  row[10,11,12] = roll, pitch, azimuth
+    # row[7,8,9] = mag 3 axis
     def step(self, idx, row, step_count):
         self.time = row[0]
         self.step_count = step_count
@@ -64,12 +64,12 @@ class HeadingCalculator:
 
     def cal_heading(self, acc, gyro):  # Calculation heading
         self.tilting(acc)
-        self.processed_mag = np.matmul(gOFV.getRotationMatrixFromVector(self.rotvec), self.mag)
-        self.processed_mag_df.loc[len(self.processed_mag_df)] = [self.time, self.processed_mag[0], self.processed_mag[1],
-                                                            self.processed_mag[2]]
+        self.processed_gyro = np.matmul(gOFV.getRotationMatrixFromVector(self.rotvec), self.gyro)
+        #self.processed_mag_df.loc[len(self.processed_mag_df)] = [self.time, self.processed_mag[0], self.processed_mag[1],
+        #                                              self.processed_mag[2]]
         # 처리된 자이로 적분하면 heading이 나온다
-        # self.heading += gyro[2] * (self.time - self.time_before) * self.Ms2S
-        # self.processed_heading += self.processed_gyro[2] * (self.time - self.time_before) * self.Ms2S
+        self.heading += gyro[2] * (self.time - self.time_before) * self.Ms2S
+        self.processed_heading += self.processed_gyro[2] * (self.time - self.time_before) * self.Ms2S
 
         # 초기 시간이 0이 아닐 수 있다.
         if self.flag == 0:
@@ -147,7 +147,6 @@ class HeadingCalculator:
     def Heading_plot(self, file_name):
         plt.figure()
         plt.plot(self.heading_df['time'], self.heading_df['value'], c='blue')
-
         plt.plot(self.processed_heading_df['time'], self.processed_heading_df['value'], c='green')
         plt.xlabel('time')
         plt.ylabel('degree')

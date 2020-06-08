@@ -1,6 +1,5 @@
 import numpy as np
 
-
 def getRotationMatrixFromVector(rotationVector):
     R = np.zeros((4, 4))
     q1 = rotationVector[0]
