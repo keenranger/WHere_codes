@@ -2,20 +2,25 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from PDR.modules import getOrientationFromVector as gOFV
 
 
 class HeadingCalculator:
     def __init__(self):
         self.acc = [0, 0, 0]
-        self.gyro = [0, 0, 0]
+        self.gyro = [0, 0, 0, 1]
+        self.mag = [0, 0, 0, 1]
         self.heading = 0  # raw gyro z를 적분한 heading
         self.processed_heading = 0  # rotaion M 을 거친 gyro z를 적분한 heading
-        self.processed_gyro = [0, 0, 0]  # rotaion M 을 거친 gyro data
+        self.processed_gyro = [0, 0, 0, 1]  # rotaion M 을 거친 gyro data
+        self.processed_mag = [0, 0, 0, 1]
         self.time_before = 0
         self.time = 0
         self.heading_df = pd.DataFrame(columns=("time", "value"))  # heading을 저장하기 위한 DataFrame
         self.processed_heading_df = pd.DataFrame(columns=("time", "value"))
         self.rollpitch_df = pd.DataFrame(columns=("time", "roll", "pitch"))
+        self.processed_mag_df = pd.DataFrame(columns=("time", "magx", "magy", "magz"))
+
         self.step_count = 0
         self.step_count_before = 0
         self.roll = 0
@@ -37,11 +42,16 @@ class HeadingCalculator:
         self.pre_avg_pitch = 0
         self.index_count = 1
 
-    def step(self, idx, row, step_count):  # row[0] : time ,row[1,2,3] = acc 3 axis, row[4,5,6] = gyro 3 axis
+    # row[0] : time ,row[1,2,3] = acc 3 axis, row[4,5,6] = gyro 3 axis
+    # row[7,8,9] = mag 3 axis  row[10,11,12] = roll, pitch, azimuth
+    def step(self, idx, row, step_count):
         self.time = row[0]
         self.step_count = step_count
         self.acc = [row[1], row[2], row[3]]
-        self.gyro = [row[4], row[5], row[6]]
+        self.gyro = [row[4], row[5], row[6], 1]
+        self.mag = [row[7], row[8], row[9], 1]
+        self.rotvec = np.array([row[10], row[11], row[12], row[13]])
+
         self.cal_heading(self.acc, self.gyro)
 
         ## averaging F 를 위한 counter
@@ -54,14 +64,12 @@ class HeadingCalculator:
 
     def cal_heading(self, acc, gyro):  # Calculation heading
         self.tilting(acc)
-
-        self.processed_gyro = self.Rotation_m(self.roll, self.pitch, gyro)
-
-
+        self.processed_mag = np.matmul(gOFV.getRotationMatrixFromVector(self.rotvec), self.mag)
+        self.processed_mag_df.loc[len(self.processed_mag_df)] = [self.time, self.processed_mag[0], self.processed_mag[1],
+                                                            self.processed_mag[2]]
         # 처리된 자이로 적분하면 heading이 나온다
-        self.heading += gyro[2] * (self.time - self.time_before) * self.Ns2S
-        self.processed_heading += self.processed_gyro[2] * (self.time - self.time_before) * self.Ns2S
-        self.rollpitch_df.loc[len(self.rollpitch_df)] = [self.time, self.processed_gyro[0], self.processed_gyro[2]]
+        # self.heading += gyro[2] * (self.time - self.time_before) * self.Ms2S
+        # self.processed_heading += self.processed_gyro[2] * (self.time - self.time_before) * self.Ms2S
 
         # 초기 시간이 0이 아닐 수 있다.
         if self.flag == 0:
@@ -80,14 +88,13 @@ class HeadingCalculator:
         self.pitch = self.Averaging_F("pitch", np.arctan(acc[1] / np.sqrt(acc[0] ** 2 + acc[2] ** 2)), self.windowsize)
         pass
 
-    def Rotation_m(self, roll, pitch, gyro):  # RotationMatrix
+    def Rotation_m(self, roll, pitch, data):  # RotationMatrix
         self.RotationX = [[1, 0, 0], [0, np.cos(pitch), -np.sin(pitch)], [0, np.sin(pitch), np.cos(pitch)]]
         self.RotationY = [[np.cos(roll), 0, np.sin(roll)], [0, 1, 0], [-np.sin(roll), 0, np.cos(roll)]]
 
-        rotation_gyro = np.matmul(self.RotationY, gyro)
-        rotation_gyro = np.matmul(self.RotationX, rotation_gyro)
-
-        return rotation_gyro
+        rotation_data = np.matmul(self.RotationY, data)
+        rotation_data = np.matmul(self.RotationX, rotation_data)
+        return rotation_data
 
     def Moving_avg_F(self, value_name, value, windowsize):
         if value_name == 'roll':
@@ -109,7 +116,6 @@ class HeadingCalculator:
                 else:
                     self.avg_value_pitch = self.avg_value_pitch[1:]
                     return sum(self.avg_value_pitch) / windowsize
-
 
     def Averaging_F(self, data_name, data, windowsize):
         if data_name == "roll":
