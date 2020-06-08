@@ -30,7 +30,7 @@ class HeadingCalculator:
         self.RtoD = 180 / np.pi
         self.DtoR = np.pi / 180
         self.flag = 0
-        self.windowsize = 10
+        self.windowsize = 1
         self.avg_value_roll = []  # Moving avg 를 위한 데이터 저장소
         self.avg_value_pitch = []  # Moving avg 를 위한 데이터 저장소
         self.pre_avg_roll = 0
