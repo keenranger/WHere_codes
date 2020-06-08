@@ -30,7 +30,7 @@ class HeadingCalculator:
         self.RtoD = 180 / np.pi
         self.DtoR = np.pi / 180
         self.flag = 0
-        self.windowsize = 1
+        self.windowsize = 30
         self.avg_value_roll = []  # Moving avg 를 위한 데이터 저장소
         self.avg_value_pitch = []  # Moving avg 를 위한 데이터 저장소
         self.pre_avg_roll = 0
@@ -54,12 +54,14 @@ class HeadingCalculator:
 
     def cal_heading(self, acc, gyro):  # Calculation heading
         self.tilting(acc)
-        #self.rollpitch_df.loc[len(self.rollpitch_df)] = [self.time, self.roll * self.RtoD, self.pitch * self.RtoD]
+
         self.processed_gyro = self.Rotation_m(self.roll, self.pitch, gyro)
 
+
         # 처리된 자이로 적분하면 heading이 나온다
-        self.heading += gyro[2] * (self.time - self.time_before) * self.Ms2S
-        self.processed_heading += self.processed_gyro[2] * (self.time - self.time_before) * self.Ms2S
+        self.heading += gyro[2] * (self.time - self.time_before) * self.Ns2S
+        self.processed_heading += self.processed_gyro[2] * (self.time - self.time_before) * self.Ns2S
+        self.rollpitch_df.loc[len(self.rollpitch_df)] = [self.time, self.processed_gyro[0], self.processed_gyro[2]]
 
         # 초기 시간이 0이 아닐 수 있다.
         if self.flag == 0:
@@ -74,16 +76,17 @@ class HeadingCalculator:
             self.step_count_before = self.step_count
 
     def tilting(self, acc):  # Calculation tilting
-        self.pitch = self.Averaging_F("pitch", -np.arctan(acc[0] / np.sqrt(acc[1] ** 2 + acc[2] ** 2)), self.windowsize)
-        self.roll = self.Averaging_F("roll", np.arctan(acc[1] / np.sqrt(acc[0] ** 2 + acc[2] ** 2)), self.windowsize)
+        self.roll = self.Averaging_F("roll", -np.arctan(acc[0] / np.sqrt(acc[1] ** 2 + acc[2] ** 2)), self.windowsize)
+        self.pitch = self.Averaging_F("pitch", np.arctan(acc[1] / np.sqrt(acc[0] ** 2 + acc[2] ** 2)), self.windowsize)
         pass
 
     def Rotation_m(self, roll, pitch, gyro):  # RotationMatrix
-        self.RotationX = [[1, 0, 0], [0, np.cos(roll), -np.sin(roll)], [0, np.sin(roll), np.cos(roll)]]
-        self.RotationY = [[np.cos(pitch), 0, np.sin(pitch)], [0, 1, 0], [-np.sin(pitch), 0, np.cos(pitch)]]
+        self.RotationX = [[1, 0, 0], [0, np.cos(pitch), -np.sin(pitch)], [0, np.sin(pitch), np.cos(pitch)]]
+        self.RotationY = [[np.cos(roll), 0, np.sin(roll)], [0, 1, 0], [-np.sin(roll), 0, np.cos(roll)]]
 
         rotation_gyro = np.matmul(self.RotationY, gyro)
         rotation_gyro = np.matmul(self.RotationX, rotation_gyro)
+
         return rotation_gyro
 
     def Moving_avg_F(self, value_name, value, windowsize):
