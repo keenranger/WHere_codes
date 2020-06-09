@@ -18,16 +18,12 @@ class HeadingCalculator:
         self.time = 0
         self.heading_df = pd.DataFrame(columns=("time", "value"))  # heading을 저장하기 위한 DataFrame
         self.processed_heading_df = pd.DataFrame(columns=("time", "value"))
-        self.rollpitch_df = pd.DataFrame(columns=("time", "roll", "pitch"))
+        self.rollpitch_df = pd.DataFrame(columns=("time", "roll", "pitch", "azimuth"))
         self.processed_mag_df = pd.DataFrame(columns=("time", "magx", "magy", "magz"))
-
+        self.ypr = [0, 0, 0]
         self.step_count = 0
         self.step_count_before = 0
-        self.roll = 0
-        self.pitch = 0
-        self.yaw = 0
-        self.roll_out = 0
-        self.pitch_out = 0
+
         self.RotationX = np.zeros((3, 3))
         self.RotationY = np.zeros((3, 3))
         self.Ms2S = 10 ** -3
@@ -35,7 +31,7 @@ class HeadingCalculator:
         self.RtoD = 180 / np.pi
         self.DtoR = np.pi / 180
         self.flag = 0
-        self.windowsize = 30
+        self.windowsize = 20
         self.avg_value_roll = []  # Moving avg 를 위한 데이터 저장소
         self.avg_value_pitch = []  # Moving avg 를 위한 데이터 저장소
         self.pre_avg_roll = 0
@@ -65,8 +61,10 @@ class HeadingCalculator:
     def cal_heading(self, acc, gyro):  # Calculation heading
         self.tilting(acc)
         self.processed_gyro = np.matmul(gOFV.getRotationMatrixFromVector(self.rotvec), self.gyro)
-        #self.processed_mag_df.loc[len(self.processed_mag_df)] = [self.time, self.processed_mag[0], self.processed_mag[1],
-        #                                              self.processed_mag[2]]
+        self.ypr = gOFV.getOrientation(gOFV.getRotationMatrixFromVector(self.rotvec))
+
+        self.rollpitch_df.loc[len(self.rollpitch_df)] = [self.time, self.ypr[2], self.ypr[1], self.ypr[0]]
+        self.processed_gyro = self.Rotation_m(self.ypr[2], self.ypr[1], self.gyro)
         # 처리된 자이로 적분하면 heading이 나온다
         self.heading += gyro[2] * (self.time - self.time_before) * self.Ms2S
         self.processed_heading += self.processed_gyro[2] * (self.time - self.time_before) * self.Ms2S
@@ -84,8 +82,9 @@ class HeadingCalculator:
             self.step_count_before = self.step_count
 
     def tilting(self, acc):  # Calculation tilting
-        self.roll = self.Averaging_F("roll", -np.arctan(acc[0] / np.sqrt(acc[1] ** 2 + acc[2] ** 2)), self.windowsize)
-        self.pitch = self.Averaging_F("pitch", np.arctan(acc[1] / np.sqrt(acc[0] ** 2 + acc[2] ** 2)), self.windowsize)
+        self.ypr[2] = self.Averaging_F("roll", -np.arctan(acc[0] / np.sqrt(acc[1] ** 2 + acc[2] ** 2)), self.windowsize)
+        self.ypr[1] = self.Averaging_F("pitch", np.arctan(acc[1] / np.sqrt(acc[0] ** 2 + acc[2] ** 2)), self.windowsize)
+
         pass
 
     def Rotation_m(self, roll, pitch, data):  # RotationMatrix
