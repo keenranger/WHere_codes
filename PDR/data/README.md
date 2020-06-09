@@ -141,3 +141,9 @@ ct1 : 전화모션 테스트
 각각의 시나리오 별로 state를 만들고, state별로 다른 방법으로 peak/valley를 detect한다
 # 찾는 방법2
 모든 시나리오에 대응할 수 있는(최소한 norm값을 사용했기에 orientation tilting에 의한 영향을 적게 받을 수 있다.) peak/valley detecting 알고리즘을 찾는다.
+
+
+## wtc 
+* wt1 : 지변에 수평하게 두고 걷기 
+* wt2 : 기울여 보고 걷기 
+* wt3 : 중간에 전화 모션으로 전환 
