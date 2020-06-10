@@ -20,10 +20,8 @@ class HeadingCalculator:
         self.processed_heading_df = pd.DataFrame(columns=("time", "value"))
         self.rollpitch_df = pd.DataFrame(columns=("time", "roll", "pitch", "azimuth"))
         self.processed_mag_df = pd.DataFrame(columns=("time", "magx", "magy", "magz"))
-        self.ypr = [0, 0, 0]
         self.step_count = 0
         self.step_count_before = 0
-
         self.RotationX = np.zeros((3, 3))
         self.RotationY = np.zeros((3, 3))
         self.Ms2S = 10 ** -3
@@ -47,6 +45,7 @@ class HeadingCalculator:
         self.gyro = [row[4], row[5], row[6], 1]
         self.mag = [row[7], row[8], row[9], 1]
         self.rotvec = np.array([row[10], row[11], row[12], row[13]])
+        self.game_rotvec = np.array([row[15], row[16], row[17], row[18]])
 
         self.cal_heading(self.acc, self.gyro)
 
@@ -59,12 +58,15 @@ class HeadingCalculator:
         self.time_before = self.time
 
     def cal_heading(self, acc, gyro):  # Calculation heading
-        self.tilting(acc)
-        self.processed_gyro = np.matmul(gOFV.getRotationMatrixFromVector(self.rotvec), self.gyro)
-        self.ypr = gOFV.getOrientation(gOFV.getRotationMatrixFromVector(self.rotvec))
+        # self.tilting(acc)
+        # RotationVector를 이용한 Roll, Pitch 계산
+        # self.rollpitch_df.loc[len(self.rollpitch_df)] = [self.time, self.ypr[2], self.ypr[1], self.ypr[0]]
+        self.processed_gyro = np.matmul(gOFV.getRotationMatrixFromVector(self.game_rotvec), self.gyro)
+        # self.processed_gyro = self.Rotation_m(self.ypr[2], self.ypr[1], self.gyro)
 
-        self.rollpitch_df.loc[len(self.rollpitch_df)] = [self.time, self.ypr[2], self.ypr[1], self.ypr[0]]
-        self.processed_gyro = self.Rotation_m(self.ypr[2], self.ypr[1], self.gyro)
+        # self.processed_mag = np.matmul(gOFV.getRotationMatrixFromVector(self.rotvec), self.mag)
+        # self.processed_mag_df.loc[len(self.processed_mag_df)] = [self.time, self.processed_mag[0], self.processed_mag[1], self.processed_mag[2]]
+
         # 처리된 자이로 적분하면 heading이 나온다
         self.heading += gyro[2] * (self.time - self.time_before) * self.Ms2S
         self.processed_heading += self.processed_gyro[2] * (self.time - self.time_before) * self.Ms2S
