@@ -12,12 +12,16 @@ class HeadingCalculator:
         self.mag = [0, 0, 0, 1]
         self.heading = 0  # raw gyro z를 적분한 heading
         self.processed_heading = 0  # rotaion M 을 거친 gyro z를 적분한 heading
+
         self.processed_gyro = [0, 0, 0, 1]  # rotaion M 을 거친 gyro data
         self.processed_mag = [0, 0, 0, 1]
+        self.rotvec_ypr = [0,0,0]
         self.time_before = 0
         self.time = 0
         self.heading_df = pd.DataFrame(columns=("time", "value"))  # heading을 저장하기 위한 DataFrame
         self.processed_heading_df = pd.DataFrame(columns=("time", "value"))
+        self.rotvec_heading_df = pd.DataFrame(columns=("time", "value"))
+
         self.rollpitch_df = pd.DataFrame(columns=("time", "roll", "pitch", "azimuth"))
         self.processed_mag_df = pd.DataFrame(columns=("time", "magx", "magy", "magz"))
         self.step_count = 0
@@ -62,6 +66,8 @@ class HeadingCalculator:
         # RotationVector를 이용한 Roll, Pitch 계산
         # self.rollpitch_df.loc[len(self.rollpitch_df)] = [self.time, self.ypr[2], self.ypr[1], self.ypr[0]]
         self.processed_gyro = np.matmul(gOFV.getRotationMatrixFromVector(self.game_rotvec), self.gyro)
+        self.rotvec_ypr = gOFV.getOrientation(gOFV.getRotationMatrixFromVector(self.game_rotvec))
+
         # self.processed_gyro = self.Rotation_m(self.ypr[2], self.ypr[1], self.gyro)
 
         # self.processed_mag = np.matmul(gOFV.getRotationMatrixFromVector(self.rotvec), self.mag)
@@ -81,6 +87,7 @@ class HeadingCalculator:
         if self.step_count - self.step_count_before != 0:
             self.heading_df.loc[self.step_count] = [self.time, self.heading * self.RtoD]
             self.processed_heading_df.loc[self.step_count] = [self.time, self.processed_heading * self.RtoD]
+            self.rotvec_heading_df.loc[self.step_count] = [self.time, self.rotvec_ypr[0] * self.RtoD]
             self.step_count_before = self.step_count
 
     def tilting(self, acc):  # Calculation tilting
@@ -147,8 +154,9 @@ class HeadingCalculator:
 
     def Heading_plot(self, file_name):
         plt.figure()
-        plt.plot(self.heading_df['time'], self.heading_df['value'], c='blue')
-        plt.plot(self.processed_heading_df['time'], self.processed_heading_df['value'], c='green')
+        plt.plot(self.heading_df['time'], self.heading_df['value'], c='blue',label='only_gyro')
+        plt.plot(self.processed_heading_df['time'], self.processed_heading_df['value'], c='green', label='rotM_gyro')
+        plt.plot(self.rotvec_heading_df['time'], self.rotvec_heading_df['value'], c='orange',label='rotM_azimuth')
         plt.xlabel('time')
         plt.ylabel('degree')
 
