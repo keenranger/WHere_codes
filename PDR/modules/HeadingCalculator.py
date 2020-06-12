@@ -23,7 +23,7 @@ class HeadingCalculator:
 
         # 처리된 자이로 적분하면 heading이 나온다
         if not np.isnan(self.step_before[0]):
-            self.heading += (self.step_count_before[1] + gyro[2]) * (
+            self.heading += (self.step_before[1] + gyro[2]) * (
                 time - self.step_before[0]) * 1e-3 / 2
             self.processed_heading += (self.step_before[2] + processed_gyro[2]) * (
                 time - self.step_before[0]) * 1e-3 / 2
