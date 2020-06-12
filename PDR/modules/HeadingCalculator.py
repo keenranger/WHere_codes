@@ -13,7 +13,7 @@ class HeadingCalculator:
         self.processed_heading = 0  # rotaion M 을 거친 gyro z를 적분한 heading
         self.processed_gyro = [0, 0, 0, 1]  # rotaion M 을 거친 gyro data
         self.rot_vec_orientation = [0, 0, 0]
-        self.time_before = 0
+        self.time_before = np.NaN
         self.time = 0
         self.rot_vec = [0, 0, 0, 0]
         self.game_rot_vec = [0, 0, 0, 0]
@@ -39,14 +39,9 @@ class HeadingCalculator:
         self.rot_vec_orientation = getOrientation(rotationMatrix)
 
         # 처리된 자이로 적분하면 heading이 나온다
-        self.heading += gyro[2] * (self.time - self.time_before) * 1e-3
-        self.processed_heading += self.processed_gyro[2] * (self.time - self.time_before) * 1e-3
-
-        # 초기 시간이 0이 아닐 수 있다.
-        if self.flag == 0:
-            self.heading = 0
-            self.processed_heading = 0
-            self.flag = 1
+        if not np.isnan(self.time_before):
+            self.heading += gyro[2] * (self.time - self.time_before) * 1e-3
+            self.processed_heading += self.processed_gyro[2] * (self.time - self.time_before) * 1e-3
 
         # 걸음이 발생할 때 마다
         if step_count - self.step_count_before != 0:
