@@ -7,7 +7,7 @@ from PDR.modules.QuaternionCalculator import *
 
 class HeadingCalculator:
     def __init__(self):
-        self.step_before = [np.NaN, np.Nan, np.Nan]
+        self.step_before = np.array([np.NaN, np.Nan, np.Nan])
         self.heading_df = pd.DataFrame(
             columns=("time", "body", "nav", "azimuth"))
 
@@ -19,8 +19,8 @@ class HeadingCalculator:
 
         # 처리된 자이로 적분하면 heading이 나온다
         if not np.isnan(self.step_before[0]):
-            heading = self.heading_df["body"].loc[-1]
-            processed_heading = self.heading_df["nav"].loc[-1]
+            heading = self.heading_df["body"].loc[len(self.heading_df)-1]
+            processed_heading = self.heading_df["nav"].loc[len(self.heading_df)-1]
             heading += (self.step_before[1] + gyro[2]) * \
                 (time - self.step_before[0]) * 1e-3 / 2
             processed_heading += (self.step_before[2] + processed_gyro[2]) * (
