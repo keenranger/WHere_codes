@@ -35,18 +35,19 @@ def getRotationMatrixFromVector(rotation_vector, return_size):
         rotation_matrix = rotation_matrix.reshape([4, 4])
     elif return_size == 9:
         rotation_matrix = np.zeros(9)
-        rotation_matrix[0] = 1 - sq_q2 - sq_q3;
-        rotation_matrix[1] = q1_q2 - q3_q0;
-        rotation_matrix[2] = q1_q3 + q2_q0;
+        rotation_matrix[0] = 1 - sq_q2 - sq_q3
+        rotation_matrix[1] = q1_q2 - q3_q0
+        rotation_matrix[2] = q1_q3 + q2_q0
 
-        rotation_matrix[3] = q1_q2 + q3_q0;
-        rotation_matrix[4] = 1 - sq_q1 - sq_q3;
-        rotation_matrix[5] = q2_q3 - q1_q0;
+        rotation_matrix[3] = q1_q2 + q3_q0
+        rotation_matrix[4] = 1 - sq_q1 - sq_q3
+        rotation_matrix[5] = q2_q3 - q1_q0
 
-        rotation_matrix[6] = q1_q3 - q2_q0;
-        rotation_matrix[7] = q2_q3 + q1_q0;
-        rotation_matrix[8] = 1 - sq_q1 - sq_q2;
+        rotation_matrix[6] = q1_q3 - q2_q0
+        rotation_matrix[7] = q2_q3 + q1_q0
+        rotation_matrix[8] = 1 - sq_q1 - sq_q2
         rotation_matrix = rotation_matrix.reshape([3, 3])
+
     return rotation_matrix
 
 def getOrientation(rotation_matrix):
