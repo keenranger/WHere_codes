@@ -11,7 +11,7 @@ class HeadingCalculator:
         self.heading_df = pd.DataFrame(
             columns=("time", "body", "nav", "azimuth"))
 
-    def step(self, time, gyro, rot_vec, game_rot_vec, step_count):
+    def step(self, time, gyro, rot_vec, game_rot_vec):
         # RotationVector를 이용한 Roll, Pitch 계산
         rotationMatrix = getRotationMatrixFromVector(game_rot_vec, 16)
         processed_gyro = np.matmul(rotationMatrix, gyro)
