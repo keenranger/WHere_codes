@@ -7,7 +7,7 @@ from PDR.modules.QuaternionCalculator import *
 
 class HeadingCalculator:
     def __init__(self):
-        self.step_before = np.array([np.NaN, np.NaN, np.NaN, np.NaN])
+        self.step_before = np.array([np.NaN, np.NaN, np.NaN])
         self.heading_df = pd.DataFrame(
             columns=("time", "body", "nav", "azimuth"))
 
@@ -27,18 +27,10 @@ class HeadingCalculator:
             processed_heading += (self.step_before[2] + processed_gyro[2]) * (
                 time - self.step_before[0]) * 1e-3 / 2
 
-            diff_orientation = rot_vec_orientation[0] - self.step_before[3]
-            while abs(diff_orientation) > np.deg2rad(180):
-                if diff_orientation > 0:
-                    rot_vec_orientation[0] = rot_vec_orientation[0] - 2 * np.pi
-                else:
-                    rot_vec_orientation[0] = rot_vec_orientation[0] + 2 * np.pi
-                diff_orientation = rot_vec_orientation[0] - self.step_before[3]
-
         else:
             heading = -rot_vec_orientation[0]
             processed_heading = -rot_vec_orientation[0]
-        self.step_before = [time, gyro[2], processed_gyro[2], rot_vec_orientation[0]]
+        self.step_before = [time, gyro[2], processed_gyro[2]]
 
         self.heading_df.loc[len(self.heading_df)] = [
             time, heading, processed_heading, -rot_vec_orientation[0]]
