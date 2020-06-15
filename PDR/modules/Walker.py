@@ -13,8 +13,7 @@ class Walker:
         self.step_length = step_length
         self.peak_cnt_before = np.NaN
         self.pdr_df = pd.DataFrame(
-            columns=('body_x', 'body_y', 'nav_x', 'nav_y', 'azimuth_x', 'azimuth_y'))
-        self.pdr_df.loc[0] = [0, 0, 0, 0, 0, 0]
+            columns=('length', 'body', 'nav', 'azimuth'))
 
     def step(self, idx, time, acc, gyro, rot_vec, game_rot_vec):
         self.pvdetect.step(idx, time, acc)
@@ -23,19 +22,32 @@ class Walker:
         peak_cnt = len(self.pvdetect.peak_df)
         if peak_cnt >= 2:  # 피크가 들어온 이후 부터는
             if peak_cnt != self.peak_cnt_before:
-                xy_list = self.pdr_df.loc[len(self.pdr_df)-1]
                 peak_idx = self.pvdetect.peak_df["idx"].loc[peak_cnt-1]
                 last_peak_idx = self.pvdetect.peak_df["idx"].loc[peak_cnt-2]
-                # heading_list = (                    self.headingcalc.heading_df.loc[peak_idx] + self.headingcalc.heading_df.loc[last_peak_idx])/2
-                heading_list = self.headingcalc.heading_df.loc[peak_idx]
-                xy_list[0] += self.step_length * np.cos(heading_list[1])
-                xy_list[1] += self.step_length * np.sin(heading_list[1])
-                xy_list[2] += self.step_length * np.cos(heading_list[2])
-                xy_list[3] += self.step_length * np.sin(heading_list[2])
-                xy_list[4] += self.step_length * np.cos(heading_list[3])
-                xy_list[5] += self.step_length * np.sin(heading_list[3])
-                self.pdr_df.loc[len(self.pdr_df)] = xy_list
+                heading_list = mean_angles(
+                    self.headingcalc.heading_df.loc[peak_idx], self.headingcalc.heading_df.loc[last_peak_idx])
+                # heading_list = self.headingcalc.heading_df.loc[peak_idx]
+                self.pdr_df.loc[len(self.pdr_df)] = [
+                    self.step_length, heading_list[1], heading_list[2], heading_list[3]]
         self.peak_cnt_before = peak_cnt
+
+
+def pdr_to_displacement(pdr_df):
+    displacement_df = pd.DataFrame(
+        columns=('body_x', 'body_y', 'nav_x', 'nav_y', 'azimuth_x', 'azimuth_y'))
+    displacement_df['body_x'] = pdr_df['length'] * np.cos(pdr_df['body'])
+    displacement_df['body_y'] = pdr_df['length'] * np.sin(pdr_df['body'])
+    displacement_df['nav_x'] = pdr_df['length'] * np.cos(pdr_df['nav'])
+    displacement_df['nav_y'] = pdr_df['length'] * np.sin(pdr_df['nav'])
+    displacement_df['azimuth_x'] = pdr_df['length'] * np.cos(pdr_df['azimuth'])
+    displacement_df['azimuth_y'] = pdr_df['length'] * np.sin(pdr_df['azimuth'])
+    return displacement_df
+
+
+def mean_angles(angle_list1, angle_list2):
+    complex_list = np.exp(1j*angle_list1) + np.exp(1j*angle_list2)
+    mean_angle_list = np.angle(complex_list)
+    return mean_angle_list
 
 
 if __name__ == "__main__":
