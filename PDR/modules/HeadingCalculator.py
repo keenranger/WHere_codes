@@ -19,30 +19,18 @@ class HeadingCalculator:
 
         # 처리된 자이로 적분하면 heading이 나온다
         if not np.isnan(self.step_before[0]):
-            heading = self.heading_df["body"].loc[len(self.heading_df) - 1]
+            heading = self.heading_df["body"].loc[len(self.heading_df)-1]
             processed_heading = self.heading_df["nav"].loc[len(
-                self.heading_df) - 1]
+                self.heading_df)-1]
             heading += (self.step_before[1] + gyro[2]) * \
-                       (time - self.step_before[0]) * 1e-3 / 2
+                (time - self.step_before[0]) * 1e-3 / 2
             processed_heading += (self.step_before[2] + processed_gyro[2]) * (
-                    time - self.step_before[0]) * 1e-3 / 2
+                time - self.step_before[0]) * 1e-3 / 2
 
         else:
             heading = -rot_vec_orientation[0]
             processed_heading = -rot_vec_orientation[0]
         self.step_before = [time, gyro[2], processed_gyro[2]]
 
-        data = np.rad2deg(rot_vec_orientation[0])
-        if data < -125:
-            data = -180
-        elif -125 <= data < -45:
-            data = -90
-        elif -45 <= data < 45:
-            data = 0
-        elif 45 <= data < 125:
-            data = 90
-        else:
-            data = 180
-
         self.heading_df.loc[len(self.heading_df)] = [
-            time, heading, processed_heading, -np.deg2rad(data)]
+            time, heading, processed_heading, -rot_vec_orientation[0]]

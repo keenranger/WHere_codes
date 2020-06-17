@@ -20,14 +20,13 @@ class Walker:
         self.headingcalc.step(time, gyro, rot_vec, game_rot_vec)
 
         peak_cnt = len(self.pvdetect.peak_df)
-
-        if peak_cnt >= 1:  # 피크가 들어온 이후 부터는
+        if peak_cnt >= 2:  # 피크가 들어온 이후 부터는
             if peak_cnt != self.peak_cnt_before:
-                peak_idx = self.pvdetect.peak_df["idx"].loc[peak_cnt - 1]
-                #last_peak_idx = self.pvdetect.peak_df["idx"].loc[peak_cnt - 2]
-                # heading_list = mean_angles(
-                #     self.headingcalc.heading_df.loc[peak_idx], self.headingcalc.heading_df.loc[last_peak_idx])
-                heading_list = self.headingcalc.heading_df.loc[peak_idx]
+                peak_idx = self.pvdetect.peak_df["idx"].loc[peak_cnt-1]
+                last_peak_idx = self.pvdetect.peak_df["idx"].loc[peak_cnt-2]
+                heading_list = mean_angles(
+                    self.headingcalc.heading_df.loc[peak_idx], self.headingcalc.heading_df.loc[last_peak_idx])
+                # heading_list = self.headingcalc.heading_df.loc[peak_idx]
                 self.pdr_df.loc[len(self.pdr_df)] = [
                     self.step_length, heading_list[1], heading_list[2], heading_list[3]]
         self.peak_cnt_before = peak_cnt
@@ -44,10 +43,12 @@ def pdr_to_displacement(pdr_df):
     displacement_df['azimuth_y'] = pdr_df['length'] * np.sin(pdr_df['azimuth'])
     return displacement_df
 
+
 def mean_angles(angle_list1, angle_list2):
-    complex_list = np.exp(1j * angle_list1) + np.exp(1j * angle_list2)
+    complex_list = np.exp(1j*angle_list1) + np.exp(1j*angle_list2)
     mean_angle_list = np.angle(complex_list)
     return mean_angle_list
+
 
 if __name__ == "__main__":
     pass
