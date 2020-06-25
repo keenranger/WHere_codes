@@ -4,35 +4,49 @@ import matplotlib.pyplot as plt
 
 from PDR.modules.PeakValleyDetector import *
 from PDR.modules.HeadingCalculator import *
-from PDR.modules.PitchPVDetector import *
 
 
 class Walker:
     def __init__(self, step_length=0.65):
         self.pvdetect = PeakValleyDetector()
+        self.pitchpvdetect = PeakValleyDetector(amp_threshold= 10, step_interval= 300)
         self.headingcalc = HeadingCalculator()
-        self.pitchpvdetect = PitchPVDetector()
         self.step_length = step_length
+        self.swing_step_length = step_length * 2
         self.peak_cnt_before = np.NaN
-        self.pdr_df = pd.DataFrame(
-            columns=('length', 'body', 'nav', 'azimuth'))
+        self.swing_peak_cnt_before = np.NaN
+        self.pdr_df = pd.DataFrame( columns=('length', 'body', 'nav', 'azimuth'))
 
     def step(self, idx, time, acc, gyro, rot_vec, game_rot_vec, orientation):
-        self.pvdetect.step(idx, time, acc)
-        self.pitchpvdetect.step(idx, time, np.rad2deg(-orientation[1]))
+        acc_norm = np.sqrt(acc[0] ** 2 + acc[1] ** 2 + acc[2] ** 2)
+        mrz = np.sign(acc[2]) * (acc[2] ** 2) / (acc[0] ** 2 + acc[1] ** 2 + acc[2] ** 2)
+        self.pvdetect.step(idx, time, acc_norm)
         self.headingcalc.step(time, gyro, rot_vec, game_rot_vec)
+        self.pitchpvdetect.step(idx, time, np.rad2deg(-orientation[1]))
+        # self.pitchpvdetect.step(idx, time, )
 
         peak_cnt = len(self.pvdetect.peak_df)
-        if peak_cnt >= 2:  # 피크가 들어온 이후 부터는
-            if peak_cnt != self.peak_cnt_before:
-                peak_idx = self.pvdetect.peak_df["idx"].loc[peak_cnt - 1]
-                last_peak_idx = self.pvdetect.peak_df["idx"].loc[peak_cnt - 2]
-                heading_list = mean_angles(
-                    self.headingcalc.heading_df.loc[peak_idx], self.headingcalc.heading_df.loc[last_peak_idx])
-                # heading_list = self.headingcalc.heading_df.loc[peak_idx]
-                self.pdr_df.loc[len(self.pdr_df)] = [
-                    self.step_length, heading_list[1], heading_list[2], heading_list[3]]
-        self.peak_cnt_before = peak_cnt
+        swing_peak_cnt = len(self.pitchpvdetect.peak_df)
+
+        # if mrz >= 0.5:  ##보고걷기
+        #     if peak_cnt >= 2:  # 피크가 들어온 이후 부터는
+        #         if peak_cnt != self.peak_cnt_before:
+        #             peak_idx = self.pvdetect.peak_df["idx"].loc[peak_cnt - 1]
+        #             last_peak_idx = self.pvdetect.peak_df["idx"].loc[peak_cnt - 2]
+        #             heading_list = mean_angles(
+        #                 self.headingcalc.heading_df.loc[peak_idx], self.headingcalc.heading_df.loc[last_peak_idx])
+        #             # heading_list = self.headingcalc.heading_df.loc[peak_idx]
+        #             self.pdr_df.loc[len(self.pdr_df)] = [
+        #                 self.step_length, heading_list[1], heading_list[2], heading_list[3]]
+        #     self.peak_cnt_before = peak_cnt
+        # else:
+        #     if swing_peak_cnt != self.swing_peak_cnt_before:
+        #         swing_peak_idx = self.pitchpvdetect.pitch_peak_df["idx"].loc[swing_peak_cnt - 1]
+        #         self.pdr_df.loc[len(self.pdr_df)] = [
+        #             self.swing_step_length, self.headingcalc.heading_df['body'].loc[swing_peak_idx],
+        #             self.headingcalc.heading_df['nav'].loc[swing_peak_idx],
+        #             self.headingcalc.heading_df['azimuth'].loc[swing_peak_idx]]
+        #     self.swing_peak_cnt_before = swing_peak_cnt
 
 
 def pdr_to_displacement(pdr_df):
