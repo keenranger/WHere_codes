@@ -33,7 +33,7 @@ class Walker:
 
         peak_cnt = len(self.pvdetect.peak_df)
         swing_peak_cnt = len(self.pitchpvdetect.peak_df)
-        mrz = 1
+        # mrz = 1
         if mrz >= 0.5:  # 보고걷기
             if peak_cnt >= 2:  # 피크가 들어온 이후 부터는
                 if peak_cnt != self.peak_cnt_before:
@@ -51,7 +51,7 @@ class Walker:
                     swing_peak_idx = self.pitchpvdetect.peak_df["idx"].loc[swing_peak_cnt - 1]
                     heading_list = self.headingcalc.heading_df.loc[swing_peak_idx]
                     self.pdr_df.loc[len(self.pdr_df)] = [
-                        self.step_length, heading_list[1], heading_list[2], heading_list[3], heading_list[4], heading_list[4]]
+                        self.swing_step_length, heading_list[1], heading_list[2], heading_list[3], heading_list[4], heading_list[4]]
             self.swing_peak_cnt_before = swing_peak_cnt
 
 
