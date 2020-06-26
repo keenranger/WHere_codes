@@ -34,7 +34,7 @@ class Walker:
         peak_cnt = len(self.pvdetect.peak_df)
         swing_peak_cnt = len(self.pitchpvdetect.peak_df)
 
-        if peak_cnt == 1:
+        if peak_cnt == 1:  #첫 피크일때 game과 rot을 동일하게 맞춰주는 작업을 한다
             if peak_cnt != self.peak_cnt_before:
                 peak_idx = self.pvdetect.peak_df["idx"].loc[peak_cnt - 1]
                 peak_heading = self.headingcalc.heading_df.loc[peak_idx]
