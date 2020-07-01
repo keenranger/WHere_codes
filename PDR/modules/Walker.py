@@ -42,26 +42,26 @@ class Walker:
                 self.headingcalc.heading_df.loc[peak_idx]['game'] -= self.headingcalc.rot_reference
             
         # mrz = 1
-        if mrz >= 0.5:  # 보고걷기
-            if peak_cnt >= 2:  # 피크가 들어온 이후 부터는
-                if peak_cnt != self.peak_cnt_before:
+        # if mrz >= 0.5:  # 보고걷기
+        if peak_cnt >= 2:  # 피크가 들어온 이후 부터는
+            if peak_cnt != self.peak_cnt_before:
 
-                    peak_idx = self.pvdetect.peak_df["idx"].loc[peak_cnt - 1]
-                    last_peak_idx = self.pvdetect.peak_df["idx"].loc[peak_cnt - 2]
-                    heading_list = mean_angles(
-                        self.headingcalc.heading_df.loc[peak_idx], self.headingcalc.heading_df.loc[last_peak_idx])
-                    # heading_list = self.headingcalc.heading_df.loc[peak_idx]
-                    self.pdr_df.loc[len(self.pdr_df)] = [
-                        self.step_length, heading_list[1], heading_list[2], heading_list[3], heading_list[4], heading_list[4]]
-            self.peak_cnt_before = peak_cnt
-        else:
-            if swing_peak_cnt >= 1:
-                if swing_peak_cnt != self.swing_peak_cnt_before:
-                    swing_peak_idx = self.pitchpvdetect.peak_df["idx"].loc[swing_peak_cnt - 1]
-                    heading_list = self.headingcalc.heading_df.loc[swing_peak_idx]
-                    self.pdr_df.loc[len(self.pdr_df)] = [
-                        self.swing_step_length, heading_list[1], heading_list[2], heading_list[3], heading_list[4], heading_list[4]]
-            self.swing_peak_cnt_before = swing_peak_cnt
+                peak_idx = self.pvdetect.peak_df["idx"].loc[peak_cnt - 1]
+                last_peak_idx = self.pvdetect.peak_df["idx"].loc[peak_cnt - 2]
+                heading_list = mean_angles(
+                    self.headingcalc.heading_df.loc[peak_idx], self.headingcalc.heading_df.loc[last_peak_idx])
+                # heading_list = self.headingcalc.heading_df.loc[peak_idx]
+                self.pdr_df.loc[len(self.pdr_df)] = [
+                    self.step_length, heading_list[1], heading_list[2], heading_list[3], heading_list[4], heading_list[4]]
+        self.peak_cnt_before = peak_cnt
+        # else:
+        #     if swing_peak_cnt >= 1:
+        #         if swing_peak_cnt != self.swing_peak_cnt_before:
+        #             swing_peak_idx = self.pitchpvdetect.peak_df["idx"].loc[swing_peak_cnt - 1]
+        #             heading_list = self.headingcalc.heading_df.loc[swing_peak_idx]
+        #             self.pdr_df.loc[len(self.pdr_df)] = [
+        #                 self.swing_step_length, heading_list[1], heading_list[2], heading_list[3], heading_list[4], heading_list[4]]
+        #     self.swing_peak_cnt_before = swing_peak_cnt
 
 
 def pdr_to_displacement(pdr_df):
