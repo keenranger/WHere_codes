@@ -52,7 +52,7 @@ class Walker:
                 peak_heading = self.headingcalc.heading_df.loc[peak_idx]
                 last_peak_heading = self.headingcalc.heading_df.loc[last_peak_idx]
                 self.headingcalc.compensation_fusion = mean_angles(
-                    self.headingcalc.compensation_fusion, (peak_heading['game_raw'] - peak_heading['rot']), alpha=0.99)
+                    self.headingcalc.compensation_fusion, (peak_heading['game_raw'] - peak_heading['rot']), alpha=0.995)
                 heading_list = mean_angles(peak_heading, last_peak_heading)
                 self.pdr_df.loc[len(self.pdr_df)] = [
                     self.step_length, heading_list[1], heading_list[2], heading_list[3], heading_list[5], heading_list[6]]
