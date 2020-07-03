@@ -1,5 +1,11 @@
 import numpy as np
 
+def mean_angles(angle_list1, angle_list2, alpha=0.5):
+    complex_list = alpha * np.exp(1j*angle_list1) + \
+        (1-alpha) * np.exp(1j*angle_list2)
+    mean_angle_list = np.angle(complex_list)
+    return mean_angle_list
+    
 def getRotationMatrixFromVector(rotation_vector, return_size):
     q1 = rotation_vector[0]
     q2 = rotation_vector[1]

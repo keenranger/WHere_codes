@@ -2,7 +2,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from PDR.modules.QuaternionCalculator import *
+from PDR.modules.CalcFunction import *
 
 
 class HeadingCalculator:

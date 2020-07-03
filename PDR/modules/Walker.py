@@ -75,11 +75,7 @@ def pdr_to_displacement(pdr_df):
     return displacement_df
 
 
-def mean_angles(angle_list1, angle_list2, alpha=0.5):
-    complex_list = alpha * np.exp(1j*angle_list1) + \
-        (1-alpha) * np.exp(1j*angle_list2)
-    mean_angle_list = np.angle(complex_list)
-    return mean_angle_list
+
 
 
 if __name__ == "__main__":
