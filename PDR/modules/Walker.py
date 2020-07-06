@@ -19,7 +19,7 @@ class Walker:
         self.pdr_df = pd.DataFrame(
             columns=('length', 'body', 'nav', 'rot', 'game', 'fusion'))
 
-    def step(self, idx, time, acc, gyro, vec, game_vec):
+    def step(self, idx, time, acc, gyro, mag, vec, game_vec):
         acc_norm = np.sqrt(acc[0] ** 2 + acc[1] ** 2 + acc[2] ** 2)
         mrz = np.sign(acc[2]) * (acc[2] ** 2) / \
             (acc[0] ** 2 + acc[1] ** 2 + acc[2] ** 2)
@@ -28,22 +28,11 @@ class Walker:
         vec_orientation = getOrientation(rotationMatrix)
 
         self.pvdetect.step(idx, time, acc_norm)
-        self.headingcalc.step(time, gyro, vec, game_vec)
+        self.headingcalc.step(time, gyro, mag, vec, game_vec)
         self.pitchpvdetect.step(idx, time, -vec_orientation[1])
 
         peak_cnt = len(self.pvdetect.peak_df)
         swing_peak_cnt = len(self.pitchpvdetect.peak_df)
-
-        if peak_cnt == 1:  # 첫 피크일때 game과 rot을 동일하게 맞춰주는 작업을 한다
-            if peak_cnt != self.peak_cnt_before:
-                peak_idx = self.pvdetect.peak_df["idx"].loc[peak_cnt - 1]
-                peak_heading = self.headingcalc.heading_df.loc[peak_idx]
-                self.headingcalc.compensation_game = peak_heading['game_raw'] - \
-                    peak_heading['rot']
-                self.headingcalc.compensation_fusion = peak_heading['game_raw'] - \
-                    peak_heading['rot']
-                peak_heading['game'] -= self.headingcalc.compensation_game
-                peak_heading['fusion'] -= self.headingcalc.compensation_fusion
 
         if peak_cnt >= 2:  # 피크가 들어온 이후 부터는
             if peak_cnt != self.peak_cnt_before:
@@ -51,8 +40,6 @@ class Walker:
                 last_peak_idx = self.pvdetect.peak_df["idx"].loc[peak_cnt - 2]
                 peak_heading = self.headingcalc.heading_df.loc[peak_idx]
                 last_peak_heading = self.headingcalc.heading_df.loc[last_peak_idx]
-                self.headingcalc.compensation_fusion = mean_angles(
-                    self.headingcalc.compensation_fusion, (peak_heading['game_raw'] - peak_heading['rot']), alpha=0.995)
                 heading_list = mean_angles(peak_heading, last_peak_heading)
                 self.pdr_df.loc[len(self.pdr_df)] = [
                     self.step_length, heading_list[1], heading_list[2], heading_list[3], heading_list[5], heading_list[6]]
