@@ -18,21 +18,22 @@ class Walker:
         self.swing_peak_cnt_before = np.NaN
         self.pdr_df = pd.DataFrame(
             columns=('length', 'body', 'nav', 'rot', 'game', 'fusion'))
+        self.mag_df = pd.DataFrame(
+            columns=("time", "magx", "magy", "magz", "rmagx", "rmagy", "rmagz"))
 
     def step(self, idx, time, acc, gyro, mag, vec, game_vec):
         acc_norm = np.sqrt(acc[0] ** 2 + acc[1] ** 2 + acc[2] ** 2)
-        mrz = np.sign(acc[2]) * (acc[2] ** 2) / \
-            (acc[0] ** 2 + acc[1] ** 2 + acc[2] ** 2)
-
         rotationMatrix = getRotationMatrixFromVector(game_vec, 9)
         vec_orientation = getOrientation(rotationMatrix)
 
         self.pvdetect.step(idx, time, acc_norm)
         self.headingcalc.step(time, gyro, mag, vec, game_vec)
         self.pitchpvdetect.step(idx, time, -vec_orientation[1])
+        rot_mag = rotate_mag(mag, vec)
+        self.mag_df.loc[len(self.mag_df)] = [time, mag[0],
+                                             mag[1], mag[2], rot_mag[0], rot_mag[1], rot_mag[2]]
 
         peak_cnt = len(self.pvdetect.peak_df)
-        swing_peak_cnt = len(self.pitchpvdetect.peak_df)
 
         if peak_cnt >= 2:  # 피크가 들어온 이후 부터는
             if peak_cnt != self.peak_cnt_before:
@@ -62,7 +63,9 @@ def pdr_to_displacement(pdr_df):
     return displacement_df
 
 
-
+def rotate_mag(mag, vec):
+    rot_mag = np.matmul(getRotationMatrixFromVector(vec, 9), mag)
+    return rot_mag
 
 
 if __name__ == "__main__":
