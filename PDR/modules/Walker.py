@@ -10,7 +10,7 @@ class Walker:
     def __init__(self, step_length=0.65):
         self.pvdetect = PeakValleyDetector()
         self.pitchpvdetect = PeakValleyDetector(
-            amp_threshold=0.2, step_interval=300)
+            amp_threshold=0.2, step_interval=150)
         self.headingcalc = HeadingCalculator()
         self.step_length = step_length
         self.swing_step_length = step_length * 2
