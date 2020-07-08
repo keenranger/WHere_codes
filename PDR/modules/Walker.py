@@ -17,9 +17,12 @@ class Walker:
         self.peak_cnt_before = np.NaN
         self.swing_peak_cnt_before = np.NaN
         self.pdr_df = pd.DataFrame(
-            columns=('length', 'body', 'nav', 'rot', 'game', 'fusion'))
+            columns=('idx', 'length', 'body', 'nav', 'rot', 'game', 'fusion'))
         self.mag_df = pd.DataFrame(
             columns=("time", "magx", "magy", "magz", "rmagx", "rmagy", "rmagz"))
+        self.corner_df = pd.DataFrame(
+            columns=('idx', 'body', 'nav', 'rot', 'game', 'fusion'))
+        self.corner_heading_list_before = [0, 0, 0, 0, 0]
 
     def step(self, idx, time, acc, gyro, mag, vec, game_vec):
         acc_norm = np.sqrt(acc[0] ** 2 + acc[1] ** 2 + acc[2] ** 2)
@@ -36,14 +39,24 @@ class Walker:
         peak_cnt = len(self.pvdetect.peak_df)
 
         if peak_cnt >= 2:  # 피크가 들어온 이후 부터는
-            if peak_cnt != self.peak_cnt_before:
+            if peak_cnt != self.peak_cnt_before:  # 새 피크가 들어왔다면
                 peak_idx = self.pvdetect.peak_df["idx"].loc[peak_cnt - 1]
-                last_peak_idx = self.pvdetect.peak_df["idx"].loc[peak_cnt - 2]
                 peak_heading = self.headingcalc.heading_df.loc[peak_idx]
-                last_peak_heading = self.headingcalc.heading_df.loc[last_peak_idx]
-                heading_list = mean_angles(peak_heading, last_peak_heading)
+                heading_list = peak_heading
                 self.pdr_df.loc[len(self.pdr_df)] = [
-                    self.step_length, heading_list[1], heading_list[2], heading_list[3], heading_list[5], heading_list[6]]
+                    peak_idx, self.step_length, heading_list[1], heading_list[2], heading_list[3], heading_list[5], heading_list[6]]
+                # 코너 판단하기
+                if peak_cnt >= 8:
+                    corner_heading_list = abs(self.pdr_df.loc[len(
+                        self.pdr_df)-1][2:] - self.pdr_df.loc[len(self.pdr_df)-7][2:])
+                    for idx, corner_heading in enumerate(corner_heading_list):
+                        if corner_heading >= self.corner_heading_list_before[idx]:
+                            self.corner_heading_list_before[idx] = corner_heading
+                        elif self.corner_heading_list_before[idx] >= 60 / (180 / np.pi):
+                            self.corner_df.iloc[len(self.pdr_df)-4, idx+1] = True
+                            self.corner_heading_list_before[idx] = 0
+                self.corner_df.loc[len(self.corner_df)] = [peak_idx, False, False, False, False, False]
+
         self.peak_cnt_before = peak_cnt
 
 

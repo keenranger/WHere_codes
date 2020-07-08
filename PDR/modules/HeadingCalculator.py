@@ -31,9 +31,12 @@ class HeadingCalculator:
                 (time - self.step_before[0]) * 1e-3 / 2
             processed_heading += (self.step_before[2] + processed_gyro[2]) * (
                 time - self.step_before[0]) * 1e-3 / 2
+            if processed_heading >= np.pi:
+                processed_heading -= 2 * np.pi
+
         game_rot_difference = - \
             game_vec_orientation[0] - (-rot_vec_orientation[0])
-        if len(self.heading_df) < 250:
+        if len(self.heading_df) < 200:
             # 5초 동안 heading 들을 rot vec과 같게 맞춰준다.
             heading = -rot_vec_orientation[0]
             processed_heading = -rot_vec_orientation[0]
