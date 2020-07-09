@@ -52,7 +52,7 @@ class Walker:
                 self.rollpvdetect.valley_df), len(self.pitchpvdetect.peak_df), len(self.pitchpvdetect.valley_df)])
             roll_pitch_pv_count = roll_pitch_pv_count_now - self.roll_pitch_pv_count_before
             mode = sum(roll_pitch_pv_count)
-            if mode > 2:
+            if mode >= 2:
                 mode = 1
             else:
                 mode = 0
