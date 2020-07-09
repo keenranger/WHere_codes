@@ -11,7 +11,8 @@ class Walker:
         self.pvdetect = PeakValleyDetector()
         self.pitchpvdetect = PeakValleyDetector(
             amp_threshold=0.8, step_interval=100)
-        self.rollpvdetect = PeakValleyDetector(amp_threshold=0.8, step_interval=100)
+        self.rollpvdetect = PeakValleyDetector(
+            amp_threshold=0.8, step_interval=100)
         self.headingcalc = HeadingCalculator()
         self.step_length = step_length
         self.swing_step_length = step_length * 2
@@ -23,8 +24,10 @@ class Walker:
             columns=("time", "magx", "magy", "magz", "rmagx", "rmagy", "rmagz"))
         self.corner_df = pd.DataFrame(
             columns=('idx', 'body', 'nav', 'rot', 'game', 'fusion'))
-        self.corner_heading_list_before = [0, 0, 0, 0, 0]
-        self.mode_df = pd.DataFrame(columns=('time', 'roll_peak', 'roll_valley', 'pitch_peak', 'pitch_valley', 'mode'))
+        self.data_array = np.zeros([3, 5])
+        self.pass_count = np.zeros(5)
+        self.mode_df = pd.DataFrame(columns=(
+            'time', 'roll_peak', 'roll_valley', 'pitch_peak', 'pitch_valley', 'mode'))
         self.time_before = 0
         self.roll_peak_count_before = 0
         self.roll_valley_count_before = 0
@@ -47,11 +50,16 @@ class Walker:
         peak_cnt = len(self.pvdetect.peak_df)
 
         if time - self.time_before >= 2000:
-            roll_peak_count = len(self.rollpvdetect.peak_df) - self.roll_peak_count_before
-            roll_valley_count = len(self.rollpvdetect.valley_df) - self.roll_valley_count_before
-            pitch_peak_count = len(self.pitchpvdetect.peak_df) - self.pitch_peak_count_before
-            pitch_valley_count = len(self.pitchpvdetect.valley_df) - self.pitch_valley_count_before
-            mode = roll_peak_count + roll_valley_count + pitch_peak_count + pitch_valley_count
+            roll_peak_count = len(self.rollpvdetect.peak_df) - \
+                self.roll_peak_count_before
+            roll_valley_count = len(
+                self.rollpvdetect.valley_df) - self.roll_valley_count_before
+            pitch_peak_count = len(
+                self.pitchpvdetect.peak_df) - self.pitch_peak_count_before
+            pitch_valley_count = len(
+                self.pitchpvdetect.valley_df) - self.pitch_valley_count_before
+            mode = roll_peak_count + roll_valley_count + \
+                pitch_peak_count + pitch_valley_count
             if mode > 2:
                 mode = 1
             else:
@@ -71,20 +79,23 @@ class Walker:
                 heading_list = peak_heading
                 self.pdr_df.loc[len(self.pdr_df)] = [
                     peak_idx, self.step_length, heading_list[1], heading_list[2], heading_list[3], heading_list[5], heading_list[6]]
-                self.corner_df.loc[len(self.corner_df)] = [
-                    peak_idx, False, False, False, False, False]
                 # 코너 판단하기
-                if peak_cnt >= 8:
-                    corner_heading_list = abs(self.pdr_df.loc[len(
-                        self.pdr_df) - 1][2:] - self.pdr_df.loc[len(self.pdr_df) - 7][2:])
-                    for idx, corner_heading in enumerate(corner_heading_list):
-                        if corner_heading >= self.corner_heading_list_before[idx]:
-                            self.corner_heading_list_before[idx] = corner_heading
-                        elif self.corner_heading_list_before[idx] >= 80 / (180 / np.pi):
-                            self.corner_df.iloc[len(
-                                self.pdr_df)-4, idx+1] = True
-                            self.corner_heading_list_before[idx] = 0
-
+                peak_heading_list = self.pdr_df.loc[len(self.pdr_df) - 1][2:]
+                self.data_array = np.insert(
+                    self.data_array[:2], 0, peak_heading_list).reshape(3, 5)
+                corner_heading_list = diff_angles(
+                    self.data_array[0, :], self.data_array[2, :])
+                is_corner = np.array([False, False, False, False, False])
+                for idx, corner_heading in enumerate(corner_heading_list):
+                    if self.pass_count[idx] == 0:
+                        if self.data_array[2:, idx] != 0:  # 데이터 채워지는거 대기
+                            if corner_heading >= 20 / (180 / np.pi):
+                                is_corner[idx] = True
+                                self.pass_count[idx] += 5  # 이건 5번동안 검사 안함
+                                self.data_array[:, idx] = np.zeros(3)
+                self.pass_count[self.pass_count > 0] -= 1  # 5번 검사안하는거 한번 줄임
+                self.corner_df.loc[len(self.corner_df)] = np.insert(  # 코너 상태 업로드
+                    is_corner, 0, peak_idx)
         self.peak_cnt_before = peak_cnt
 
 
