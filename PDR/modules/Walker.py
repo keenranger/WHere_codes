@@ -10,7 +10,8 @@ class Walker:
     def __init__(self, step_length=0.65):
         self.pvdetect = PeakValleyDetector()
         self.pitchpvdetect = PeakValleyDetector(
-            amp_threshold=0.2, step_interval=150)
+            amp_threshold=0.8, step_interval=100)
+        self.rollpvdetect = PeakValleyDetector(amp_threshold=0.8, step_interval=100)
         self.headingcalc = HeadingCalculator()
         self.step_length = step_length
         self.swing_step_length = step_length * 2
@@ -23,6 +24,12 @@ class Walker:
         self.corner_df = pd.DataFrame(
             columns=('idx', 'body', 'nav', 'rot', 'game', 'fusion'))
         self.corner_heading_list_before = [0, 0, 0, 0, 0]
+        self.mode_df = pd.DataFrame(columns=('time', 'roll_peak', 'roll_valley', 'pitch_peak', 'pitch_valley', 'mode'))
+        self.time_before = 0
+        self.roll_peak_count_before = 0
+        self.roll_valley_count_before = 0
+        self.pitch_peak_count_before = 0
+        self.pitch_valley_count_before = 0
 
     def step(self, idx, time, acc, gyro, mag, vec, game_vec):
         acc_norm = np.sqrt(acc[0] ** 2 + acc[1] ** 2 + acc[2] ** 2)
@@ -32,11 +39,30 @@ class Walker:
         self.pvdetect.step(idx, time, acc_norm)
         self.headingcalc.step(time, gyro, mag, vec, game_vec)
         self.pitchpvdetect.step(idx, time, -vec_orientation[1])
+        self.rollpvdetect.step(idx, time, -vec_orientation[2])
         rot_mag = rotate_mag(mag, vec)
         self.mag_df.loc[len(self.mag_df)] = [time, mag[0],
                                              mag[1], mag[2], rot_mag[0], rot_mag[1], rot_mag[2]]
 
         peak_cnt = len(self.pvdetect.peak_df)
+
+        if time - self.time_before >= 2000:
+            roll_peak_count = len(self.rollpvdetect.peak_df) - self.roll_peak_count_before
+            roll_valley_count = len(self.rollpvdetect.valley_df) - self.roll_valley_count_before
+            pitch_peak_count = len(self.pitchpvdetect.peak_df) - self.pitch_peak_count_before
+            pitch_valley_count = len(self.pitchpvdetect.valley_df) - self.pitch_valley_count_before
+            mode = roll_peak_count + roll_valley_count + pitch_peak_count + pitch_valley_count
+            if mode > 2:
+                mode = 1
+            else:
+                mode = 0
+            self.mode_df.loc[len(self.mode_df)] = [time, roll_peak_count, roll_valley_count, pitch_peak_count,
+                                                   pitch_valley_count, mode]
+            self.time_before = time
+            self.roll_peak_count_before = len(self.rollpvdetect.peak_df)
+            self.roll_valley_count_before = len(self.rollpvdetect.valley_df)
+            self.pitch_peak_count_before = len(self.pitchpvdetect.peak_df)
+            self.pitch_valley_count_before = len(self.pitchpvdetect.valley_df)
 
         if peak_cnt >= 2:  # 피크가 들어온 이후 부터는
             if peak_cnt != self.peak_cnt_before:  # 새 피크가 들어왔다면
@@ -50,7 +76,7 @@ class Walker:
                 # 코너 판단하기
                 if peak_cnt >= 8:
                     corner_heading_list = abs(self.pdr_df.loc[len(
-                        self.pdr_df)-1][2:] - self.pdr_df.loc[len(self.pdr_df)-7][2:])
+                        self.pdr_df) - 1][2:] - self.pdr_df.loc[len(self.pdr_df) - 7][2:])
                     for idx, corner_heading in enumerate(corner_heading_list):
                         if corner_heading >= self.corner_heading_list_before[idx]:
                             self.corner_heading_list_before[idx] = corner_heading
