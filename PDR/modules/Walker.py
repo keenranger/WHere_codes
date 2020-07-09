@@ -29,8 +29,7 @@ class Walker:
         self.mode_df = pd.DataFrame(columns=(
             'time', 'roll_peak', 'roll_valley', 'pitch_peak', 'pitch_valley', 'mode'))
         self.time_before = 0
-        self.roll_pitch_pv_count = [0, 0, 0, 0]
-        self.roll_pitch_pv_count_before = [0, 0, 0, 0]
+        self.roll_pitch_pv_count_before = np.zeros(4)
 
     def step(self, idx, time, acc, gyro, mag, vec, game_vec):
         acc_norm = np.sqrt(acc[0] ** 2 + acc[1] ** 2 + acc[2] ** 2)
@@ -48,21 +47,19 @@ class Walker:
         peak_cnt = len(self.pvdetect.peak_df)
 
         if time - self.time_before >= 2000:
-            self.roll_pitch_pv_count = [len(self.rollpvdetect.peak_df) - self.roll_pitch_pv_count_before[0], # roll peak
-                                        len(self.rollpvdetect.valley_df) - self.roll_pitch_pv_count_before[1], # roll valley
-                                        len(self.pitchpvdetect.peak_df) - self.roll_pitch_pv_count_before[2], # pitch peak
-                                        len(self.pitchpvdetect.valley_df) - self.roll_pitch_pv_count_before[3]]  # pitch valley
-
-            mode = sum(self.roll_pitch_pv_count)
+            # roll peak, roll valley, pitch peak, pitch valley
+            roll_pitch_pv_count_now = np.array([len(self.rollpvdetect.peak_df), len(
+                self.rollpvdetect.valley_df), len(self.pitchpvdetect.peak_df), len(self.pitchpvdetect.valley_df)])
+            roll_pitch_pv_count = roll_pitch_pv_count_now - self.roll_pitch_pv_count_before
+            mode = sum(roll_pitch_pv_count)
             if mode > 2:
                 mode = 1
             else:
                 mode = 0
-            self.mode_df.loc[len(self.mode_df)] = [time, self.roll_pitch_pv_count[0], self.roll_pitch_pv_count[1],
-                                                   self.roll_pitch_pv_count[2], self.roll_pitch_pv_count[3], mode]
+            self.mode_df.loc[len(self.mode_df)] = [time, roll_pitch_pv_count[0], roll_pitch_pv_count[1],
+                                                   roll_pitch_pv_count[2], roll_pitch_pv_count[3], mode]
             self.time_before = time
-            self.roll_pitch_pv_count_before = [len(self.rollpvdetect.peak_df), len(self.rollpvdetect.valley_df),
-                                               len(self.pitchpvdetect.peak_df), len(self.pitchpvdetect.valley_df)]
+            self.roll_pitch_pv_count_before = roll_pitch_pv_count_now
 
         if peak_cnt >= 2:  # 피크가 들어온 이후 부터는
             if peak_cnt != self.peak_cnt_before:  # 새 피크가 들어왔다면
