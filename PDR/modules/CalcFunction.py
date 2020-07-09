@@ -1,11 +1,19 @@
 import numpy as np
 
+
 def mean_angles(angle_list1, angle_list2, alpha=0.5):
     complex_list = alpha * np.exp(1j*angle_list1) + \
         (1-alpha) * np.exp(1j*angle_list2)
     mean_angle_list = np.angle(complex_list)
     return mean_angle_list
-    
+
+
+def diff_angles(angle1, angle2):
+    diff_angle = np.arccos(np.cos(angle1)*np.cos(angle2) +
+                           np.sin(angle1)*np.sin(angle2))
+    return diff_angle
+
+
 def getRotationMatrixFromVector(rotation_vector, return_size):
     q1 = rotation_vector[0]
     q2 = rotation_vector[1]
@@ -56,13 +64,10 @@ def getRotationMatrixFromVector(rotation_vector, return_size):
 
     return rotation_matrix
 
+
 def getOrientation(rotation_matrix):
-    orientation = np.zeros(3) #Azimuth, pitch, roll
+    orientation = np.zeros(3)  # Azimuth, pitch, roll
     orientation[0] = np.arctan2(rotation_matrix[0][1], rotation_matrix[1][1])
     orientation[1] = np.arcsin(-rotation_matrix[2][1])
     orientation[2] = np.arctan2(-rotation_matrix[2][0], rotation_matrix[2][2])
     return orientation
-
-
-
-

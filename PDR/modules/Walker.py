@@ -67,8 +67,9 @@ class Walker:
                 peak_heading = self.headingcalc.heading_df.loc[peak_idx]
                 heading_list = peak_heading
                 self.pdr_df.loc[len(self.pdr_df)] = [
-                    peak_idx, self.step_length, heading_list[1], heading_list[2], heading_list[3], heading_list[5],
-                    heading_list[6]]
+                    peak_idx, self.step_length, heading_list[1], heading_list[2], heading_list[3], heading_list[5], heading_list[6]]
+                self.corner_df.loc[len(self.corner_df)] = [
+                    peak_idx, False, False, False, False, False]
                 # 코너 판단하기
                 if peak_cnt >= 8:
                     corner_heading_list = abs(self.pdr_df.loc[len(
@@ -76,10 +77,10 @@ class Walker:
                     for idx, corner_heading in enumerate(corner_heading_list):
                         if corner_heading >= self.corner_heading_list_before[idx]:
                             self.corner_heading_list_before[idx] = corner_heading
-                        elif self.corner_heading_list_before[idx] >= 60 / (180 / np.pi):
-                            self.corner_df.iloc[len(self.pdr_df) - 4, idx + 1] = True
+                        elif self.corner_heading_list_before[idx] >= 80 / (180 / np.pi):
+                            self.corner_df.iloc[len(
+                                self.pdr_df)-4, idx+1] = True
                             self.corner_heading_list_before[idx] = 0
-                self.corner_df.loc[len(self.corner_df)] = [peak_idx, False, False, False, False, False]
 
         self.peak_cnt_before = peak_cnt
 
