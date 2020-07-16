@@ -12,7 +12,7 @@ class DataLoader:
         if self.file_loc[-3:] == "csv" or self.file_loc[-3:] == "txt":
             print("Data parsing... ")
             self.sensor_df = pd.read_csv(self.file_loc, names=['experiment', 'time', 'accx', 'accy', 'accz', 'gyrox', 'gyroy',
-                                                               'gyroz', 'magx', 'magy', 'magz', 'rot0', 'rot1', 'rot2', 'rot3', 'game0', 'game1', 'game2', 'game3', 'light'])
+                                                               'gyroz', 'magx', 'magy', 'magz', 'rot0', 'rot1', 'rot2', 'rot3', 'game0', 'game1', 'game2', 'game3', 'light','pressure', "x_uncalib", "y_uncalib","z_uncalib","x_bias","y_bias","z_bias"])
             print("Data parsing done!")
 
         elif self.file_loc[-2:] == "db":
