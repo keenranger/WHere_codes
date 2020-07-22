@@ -31,21 +31,21 @@ class Walker:
         self.time_before = 0
         self.roll_pitch_pv_count_before = np.zeros(4)
 
-    def step(self, idx, time, acc, gyro, mag, vec, game_vec):
+    def step(self, idx, time, acc, gyro, mag, rot_vec, game_vec):
+        # 뒤에 사용하기위해 미리 데이터 처리
         acc_norm = np.sqrt(acc[0] ** 2 + acc[1] ** 2 + acc[2] ** 2)
-        rotationMatrix = getRotationMatrixFromVector(game_vec, 9)
-        vec_orientation = getOrientation(rotationMatrix)
-
+        rotationMatrix = getRotationMatrixFromVector(rot_vec, 9)
+        gameRotationMatrix = getRotationMatrixFromVector(game_vec, 9)
+        rotOrientation = getOrientation(rotationMatrix)
+        gameOrientation = getOrientation(gameRotationMatrix)
+        # step 검출을 위해 알맞은 값들을 pvdetector에 넣어줌
         self.pvdetect.step(idx, time, acc_norm)
-        self.headingcalc.step(time, gyro, mag, vec, game_vec)
-        self.pitchpvdetect.step(idx, time, -vec_orientation[1])
-        self.rollpvdetect.step(idx, time, -vec_orientation[2])
-        rot_mag = rotate_mag(mag, vec)
-        self.mag_df.loc[len(self.mag_df)] = [time, mag[0],
-                                             mag[1], mag[2], rot_mag[0], rot_mag[1], rot_mag[2]]
+        self.pitchpvdetect.step(idx, time, -gameOrientation[1])
+        self.rollpvdetect.step(idx, time, -gameOrientation[2])
+        # heading 계산을 위해 값들을 넣어줌
+        self.headingcalc.step(time, gyro, mag, rot_vec, game_vec)
 
-        peak_cnt = len(self.pvdetect.peak_df)
-
+        # 2초마다 모드 검사
         if time - self.time_before >= 2000:
             # roll peak, roll valley, pitch peak, pitch valley
             roll_pitch_pv_count_now = np.array([len(self.rollpvdetect.peak_df), len(
@@ -60,7 +60,8 @@ class Walker:
                                                    roll_pitch_pv_count[2], roll_pitch_pv_count[3], mode]
             self.time_before = time
             self.roll_pitch_pv_count_before = roll_pitch_pv_count_now
-
+        # 
+        peak_cnt = len(self.pvdetect.peak_df)
         if peak_cnt >= 2:  # 피크가 들어온 이후 부터는
             if peak_cnt != self.peak_cnt_before:  # 새 피크가 들어왔다면
                 peak_idx = self.pvdetect.peak_df["idx"].loc[peak_cnt - 1]
@@ -78,7 +79,7 @@ class Walker:
                 for idx, corner_heading in enumerate(corner_heading_list):
                     if self.pass_count[idx] == 0:
                         if self.data_array[2:, idx] != 0:  # 데이터 채워지는거 대기
-                            if corner_heading >= 20 / (180 / np.pi):
+                            if corner_heading >= 30 / (180 / np.pi):
                                 is_corner[idx] = True
                                 self.pass_count[idx] += 5  # 이건 5번동안 검사 안함
                                 self.data_array[:, idx] = np.zeros(3)
@@ -102,11 +103,6 @@ def pdr_to_displacement(pdr_df):
     displacement_df['fusion_x'] = pdr_df['length'] * np.cos(pdr_df['fusion'])
     displacement_df['fusion_y'] = pdr_df['length'] * np.sin(pdr_df['fusion'])
     return displacement_df
-
-
-def rotate_mag(mag, vec):
-    rot_mag = np.matmul(getRotationMatrixFromVector(vec, 9), mag)
-    return rot_mag
 
 
 if __name__ == "__main__":
