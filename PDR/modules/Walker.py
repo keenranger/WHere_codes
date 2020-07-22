@@ -24,6 +24,8 @@ class Walker:
             columns=("time", "magx", "magy", "magz", "rmagx", "rmagy", "rmagz"))
         self.corner_df = pd.DataFrame(
             columns=('idx', 'body', 'nav', 'rot', 'game', 'fusion'))
+        self.correlation_df = pd.DataFrame(
+            columns=('idx', 'correlation'))
         self.data_array = np.zeros([3, 5])
         self.pass_count = np.zeros(5)
         self.mode_df = pd.DataFrame(columns=(
@@ -59,8 +61,8 @@ class Walker:
                                                    roll_pitch_pv_count[2], roll_pitch_pv_count[3], mode]
             self.time_before = time
             self.roll_pitch_pv_count_before = roll_pitch_pv_count_now
-        # 
-        if self.pvdetect.step(idx, time, acc_norm): #peak나 valley 갯수 변화 있을때만 실행
+
+        if self.pvdetect.step(idx, time, acc_norm):  # peak나 valley 갯수 변화 있을때만 실행
             peak_cnt = len(self.pvdetect.peak_df)
             if peak_cnt >= 1:  # 피크가 들어온 이후 부터는
                 if peak_cnt != self.peak_cnt_before:  # 새 피크가 들어왔다면
@@ -70,8 +72,18 @@ class Walker:
                     heading_list = peak_heading
                     self.pdr_df.loc[len(self.pdr_df)] = [
                         peak_idx, self.step_length, heading_list[1], heading_list[2], heading_list[3], heading_list[5], heading_list[6]]
+                    # 헤딩 보정 할까?
+                    if peak_cnt >= 10:
+                        nav_arr = self.pdr_df['nav'].tail(10).copy().to_numpy()
+                        rot_arr = self.pdr_df['rot'].tail(10).copy().to_numpy()
+                        rot_arr -= nav_arr[0]
+                        nav_arr -= nav_arr[0]
+                        self.correlation_df.loc[len(self.correlation_df)] = [
+                            idx, diff_angles(rot_arr, nav_arr).sum()]
+
                     # 코너 판단하기
-                    peak_heading_list = self.pdr_df.loc[len(self.pdr_df) - 1][2:]
+                    peak_heading_list = self.pdr_df.loc[len(
+                        self.pdr_df) - 1][2:]
                     self.data_array = np.insert(
                         self.data_array[:2], 0, peak_heading_list).reshape(3, 5)
                     corner_heading_list = diff_angles(
@@ -84,7 +96,8 @@ class Walker:
                                     is_corner[idx] = True
                                     self.pass_count[idx] += 5  # 이건 5번동안 검사 안함
                                     self.data_array[:, idx] = np.zeros(3)
-                    self.pass_count[self.pass_count > 0] -= 1  # 5번 검사안하는거 한번 줄임
+                    self.pass_count[self.pass_count >
+                                    0] -= 1  # 5번 검사안하는거 한번 줄임
                     self.corner_df.loc[len(self.corner_df)] = np.insert(  # 코너 상태 업로드
                         is_corner, 0, peak_idx)
             self.peak_cnt_before = peak_cnt
