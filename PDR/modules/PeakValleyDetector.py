@@ -22,14 +22,14 @@ class PeakValleyDetector:
 
     def local_pv_finder(self, idx):
         # local peak
-        if self.data_array[1] > self.data_array[0] and self.data_array[1] >= self.data_array[2]:
+        if self.data_array[0] < self.data_array[1] >= self.data_array[2]:
             if (self.data_array[1] - self.lastValley[2]) > self.amp_threshold:
                 if (self.time_before - self.lastValley[1]) > self.step_interval:
                     self.updating = 'peak'
                     self.finder("valley")
             self.updater(idx)
         # local valley
-        elif self.data_array[1] < self.data_array[0] and self.data_array[1] <= self.data_array[2]:
+        elif self.data_array[0] > self.data_array[1] <= self.data_array[2]:
             if (self.lastPeak[2] - self.data_array[1]) > self.amp_threshold:
                 # 시간간격이 충분하면
                 if (self.time_before - self.lastPeak[1]) > self.step_interval:
@@ -39,12 +39,12 @@ class PeakValleyDetector:
 
     def finder(self, finding):
         if finding == 'peak':
-            self.peak_df.loc[len(self.peak_df)] = self.lastPeak
+            self.peak_df = self.peak_df.append(self.lastPeak)
             # 시간간격이 부족하거나, 사용했습니다. 비워줘야합니다
             self.lastPeak = [-1, np.inf, -np.inf]
             self.peroid_checker()
         elif finding == 'valley':
-            self.valley_df.loc[len(self.valley_df)] = self.lastValley
+            self.valley_df = self.valley_df.append(self.lastValley)
             # 시간간격이 부족하거나, 사용했습니다. 비워줘야합니다
             self.lastValley = [-1, np.inf, np.inf]
 
