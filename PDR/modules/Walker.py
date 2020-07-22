@@ -39,7 +39,6 @@ class Walker:
         rotOrientation = getOrientation(rotationMatrix)
         gameOrientation = getOrientation(gameRotationMatrix)
         # step 검출을 위해 알맞은 값들을 pvdetector에 넣어줌
-        self.pvdetect.step(idx, time, acc_norm)
         self.pitchpvdetect.step(idx, time, -gameOrientation[1])
         self.rollpvdetect.step(idx, time, -gameOrientation[2])
         # heading 계산을 위해 값들을 넣어줌
@@ -61,32 +60,34 @@ class Walker:
             self.time_before = time
             self.roll_pitch_pv_count_before = roll_pitch_pv_count_now
         # 
-        peak_cnt = len(self.pvdetect.peak_df)
-        if peak_cnt >= 2:  # 피크가 들어온 이후 부터는
-            if peak_cnt != self.peak_cnt_before:  # 새 피크가 들어왔다면
-                peak_idx = self.pvdetect.peak_df["idx"].loc[peak_cnt - 1]
-                peak_heading = self.headingcalc.heading_df.loc[peak_idx]
-                heading_list = peak_heading
-                self.pdr_df.loc[len(self.pdr_df)] = [
-                    peak_idx, self.step_length, heading_list[1], heading_list[2], heading_list[3], heading_list[5], heading_list[6]]
-                # 코너 판단하기
-                peak_heading_list = self.pdr_df.loc[len(self.pdr_df) - 1][2:]
-                self.data_array = np.insert(
-                    self.data_array[:2], 0, peak_heading_list).reshape(3, 5)
-                corner_heading_list = diff_angles(
-                    self.data_array[0, :], self.data_array[2, :])
-                is_corner = np.array([False, False, False, False, False])
-                for idx, corner_heading in enumerate(corner_heading_list):
-                    if self.pass_count[idx] == 0:
-                        if self.data_array[2:, idx] != 0:  # 데이터 채워지는거 대기
-                            if corner_heading >= 30 / (180 / np.pi):
-                                is_corner[idx] = True
-                                self.pass_count[idx] += 5  # 이건 5번동안 검사 안함
-                                self.data_array[:, idx] = np.zeros(3)
-                self.pass_count[self.pass_count > 0] -= 1  # 5번 검사안하는거 한번 줄임
-                self.corner_df.loc[len(self.corner_df)] = np.insert(  # 코너 상태 업로드
-                    is_corner, 0, peak_idx)
-        self.peak_cnt_before = peak_cnt
+        if self.pvdetect.step(idx, time, acc_norm): #peak나 valley 갯수 변화 있을때만 실행
+            peak_cnt = len(self.pvdetect.peak_df)
+            if peak_cnt >= 1:  # 피크가 들어온 이후 부터는
+                if peak_cnt != self.peak_cnt_before:  # 새 피크가 들어왔다면
+                    # peak들을 통해 PDR 하는 부분
+                    peak_idx = self.pvdetect.peak_df["idx"].loc[peak_cnt - 1]
+                    peak_heading = self.headingcalc.heading_df.loc[peak_idx]
+                    heading_list = peak_heading
+                    self.pdr_df.loc[len(self.pdr_df)] = [
+                        peak_idx, self.step_length, heading_list[1], heading_list[2], heading_list[3], heading_list[5], heading_list[6]]
+                    # 코너 판단하기
+                    peak_heading_list = self.pdr_df.loc[len(self.pdr_df) - 1][2:]
+                    self.data_array = np.insert(
+                        self.data_array[:2], 0, peak_heading_list).reshape(3, 5)
+                    corner_heading_list = diff_angles(
+                        self.data_array[0, :], self.data_array[2, :])
+                    is_corner = np.array([False, False, False, False, False])
+                    for idx, corner_heading in enumerate(corner_heading_list):
+                        if self.pass_count[idx] == 0:
+                            if self.data_array[2:, idx] != 0:  # 데이터 채워지는거 대기
+                                if corner_heading >= 30 / (180 / np.pi):
+                                    is_corner[idx] = True
+                                    self.pass_count[idx] += 5  # 이건 5번동안 검사 안함
+                                    self.data_array[:, idx] = np.zeros(3)
+                    self.pass_count[self.pass_count > 0] -= 1  # 5번 검사안하는거 한번 줄임
+                    self.corner_df.loc[len(self.corner_df)] = np.insert(  # 코너 상태 업로드
+                        is_corner, 0, peak_idx)
+            self.peak_cnt_before = peak_cnt
 
 
 def pdr_to_displacement(pdr_df):
