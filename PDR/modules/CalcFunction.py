@@ -1,5 +1,7 @@
 import numpy as np
 
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
 
 def mean_angles(angle_list1, angle_list2, alpha=0.5):
     complex_list = alpha * np.exp(1j*angle_list1) + \
