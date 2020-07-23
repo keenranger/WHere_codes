@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from PDR.modules.PeakValleyDetector import *
 from PDR.modules.HeadingCalculator import *
 
-
+correlation_window = 10
 class Walker:
     def __init__(self, step_length=0.65):
         self.pvdetect = PeakValleyDetector()
@@ -73,13 +73,13 @@ class Walker:
                     self.pdr_df.loc[len(self.pdr_df)] = [
                         peak_idx, self.step_length, heading_list[1], heading_list[2], heading_list[3], heading_list[5], heading_list[6]]
                     # 헤딩 보정 할까?
-                    if peak_cnt >= 10:
-                        nav_arr = self.pdr_df['nav'].tail(10).copy().to_numpy()
-                        rot_arr = self.pdr_df['rot'].tail(10).copy().to_numpy()
+                    if peak_cnt >= correlation_window:
+                        nav_arr = self.pdr_df['nav'].tail(correlation_window).copy().to_numpy()
+                        rot_arr = self.pdr_df['rot'].tail(correlation_window).copy().to_numpy()
                         rot_arr -= nav_arr[0]
                         nav_arr -= nav_arr[0]
                         self.correlation_df.loc[len(self.correlation_df)] = [
-                            idx, diff_angles(rot_arr, nav_arr).sum()]
+                            idx, diff_angles(rot_arr, nav_arr).sum()/correlation_window]
 
                     # 코너 판단하기
                     peak_heading_list = self.pdr_df.loc[len(
