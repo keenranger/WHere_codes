@@ -79,7 +79,6 @@ def pdr_to_displacement(pdr_df, heading_array):
     displacement_df = pd.DataFrame(
         columns=('body_x', 'body_y', 'nav_x', 'nav_y', 'rot_x', 'rot_y', 'game_x', 'game_y', 'fusion_x', 'fusion_y'))
     heading = heading_array[list(map(int, pdr_df['idx']))]
-    print(np.shape(heading))
     displacement_df['body_x'] = pdr_df['length'] * np.cos(heading[:,1])
     displacement_df['body_y'] = pdr_df['length'] * np.sin(heading[:,1])
     displacement_df['nav_x'] = pdr_df['length'] * np.cos(heading[:,2])
