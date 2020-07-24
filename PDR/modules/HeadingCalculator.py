@@ -9,8 +9,7 @@ class HeadingCalculator:
     def __init__(self):
         self.step_before = np.array([np.NaN, np.NaN, np.NaN])
         self.heading_df = pd.DataFrame(
-            columns=("time", "body", "nav", "rot", "game_raw", "game", "fusion"))
-        self.compensation_game = 0  # 보정 전, walker에서 보정 예정
+            columns=("time", "body", "nav", "rot", "game", "fusion"))
 
     def step(self, time, gyro, mag, rot_vec, game_rot_vec):
         # RotationVector를 이용한 Roll, Pitch 계산
@@ -32,16 +31,10 @@ class HeadingCalculator:
                 time - self.step_before[0]) * 1e-3 / 2
             if processed_heading >= np.pi:
                 processed_heading -= 2 * np.pi
-
-        game_rot_difference = - \
-            game_vec_orientation[0] - (-rot_vec_orientation[0])
-        if len(self.heading_df) < 200:
-            # 5초 동안 heading 들을 rot vec과 같게 맞춰준다.
-            heading = -rot_vec_orientation[0]
-            processed_heading = -rot_vec_orientation[0]
-            self.compensation_game = game_rot_difference
+        else:
+            heading = 0
+            processed_heading = 0
 
         self.step_before = [time, gyro[2], processed_gyro[2]]
-
         self.heading_df.loc[len(self.heading_df)] = [
-            time, heading, processed_heading, -rot_vec_orientation[0], -game_vec_orientation[0], -game_vec_orientation[0] - self.compensation_game, processed_heading]
+            time, heading, processed_heading, -rot_vec_orientation[0], -game_vec_orientation[0], processed_heading]

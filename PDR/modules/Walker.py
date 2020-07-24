@@ -73,7 +73,7 @@ class Walker:
                     peak_heading = self.headingcalc.heading_df.loc[peak_idx]
                     heading_list = peak_heading
                     self.pdr_df.loc[len(self.pdr_df)] = [
-                        peak_idx, self.step_length, heading_list[1], heading_list[2], heading_list[3], heading_list[5], heading_list[6]]
+                        peak_idx, self.step_length, heading_list["body"], heading_list["nav"], heading_list["rot"], heading_list["game"], heading_list["fusion"]]
                     # 헤딩 보정 할까?
                     if peak_cnt >= correlation_window:
                         nav_arr = self.pdr_df['nav'].tail(
@@ -92,8 +92,7 @@ class Walker:
                             mean_angle = mean_angles(
                                 self.headingcalc.heading_df.loc[modify_idx]['nav'], self.headingcalc.heading_df.loc[modify_idx]['rot'], alpha=coefficient)
                             angle_difference = self.headingcalc.heading_df.loc[modify_idx]['nav'] - mean_angle
-                            print(angle_difference * 180 / np.pi)
-                            self.headingcalc.heading_df.loc[modify_idx:] -= angle_difference
+                            # self.headingcalc.heading_df.loc[modify_idx:] -= angle_difference
                         self.correlation_df.loc[len(self.correlation_df)] = [
                             idx, correlation]
 
