@@ -68,50 +68,47 @@ class Walker:
             if peak_cnt >= 1:  # 피크가 들어온 이후 부터는
                 if peak_cnt != self.peak_cnt_before:  # 새 피크가 들어왔다면
                     # peak들을 통해 PDR 하는 부분
-                    peak_idx = self.pvdetect.peak_df["idx"].loc[peak_cnt - 1]
+                    peak_idx = int(self.pvdetect.peak_df["idx"].loc[peak_cnt - 1])
                     self.pdr_df.loc[len(self.pdr_df)] = [peak_idx, self.step_length]
-                    # # 헤딩 보정 할까?
-                    # if peak_cnt >= correlation_window:
-                    #     nav_arr = self.pdr_df['nav'].tail(
-                    #         correlation_window).copy().to_numpy()
-                    #     rot_arr = self.pdr_df['rot'].tail(
-                    #         correlation_window).copy().to_numpy()
-                    #     rot_arr -= nav_arr[0]
-                    #     nav_arr -= nav_arr[0]
-                    #     correlation = diff_angles(
-                    #         rot_arr, nav_arr).sum()/correlation_window
-                    #     if correlation < 0.1:
-                    #         modify_idx = self.pdr_df.loc[len(
-                    #             self.pdr_df)-10]['idx']  # 이거부터 수정
-                    #         coefficient = 2 * \
-                    #             (sigmoid(-(correlation - 0.1)) - 0.5)
-                    #         mean_angle = mean_angles(
-                    #             self.headingcalc.heading_df.loc[modify_idx]['nav'], self.headingcalc.heading_df.loc[modify_idx]['rot'], alpha=coefficient)
-                    #         angle_difference = self.headingcalc.heading_df.loc[
-                    #             modify_idx]['nav'] - mean_angle
-                    #         # self.headingcalc.heading_df.loc[modify_idx:] -= angle_difference
-                    #     self.correlation_df.loc[len(self.correlation_df)] = [
-                    #         idx, correlation]
+                    # 헤딩 보정 할까?
+                    if peak_cnt >= correlation_window:
+                        idx_window = self.pdr_df['idx'].tail(correlation_window)
+                        nav_arr = self.headingcalc.heading_array[list(map(int, idx_window)), 2].copy()
+                        rot_arr = self.headingcalc.heading_array[list(map(int, idx_window)), 3].copy()
+                        nav_arr -= nav_arr[0] 
+                        rot_arr -= rot_arr[0]
+                        correlation = diff_angles(
+                            rot_arr, nav_arr).sum()/correlation_window
+                        if correlation < 0.1:
+                            modify_idx = self.pdr_df.loc[len(self.pdr_df)-10]['idx']  # 이거부터 수정
+                            coefficient = 2 * \
+                                (sigmoid(-(correlation - 0.1)) - 0.5)
+                            # mean_angle = mean_angles(
+                            #     self.headingcalc.heading_df.loc[modify_idx]['nav'], self.headingcalc.heading_df.loc[modify_idx]['rot'], alpha=coefficient)
+                            # angle_difference = self.headingcalc.heading_df.loc[
+                            #     modify_idx]['nav'] - mean_angle
+                            # self.headingcalc.heading_df.loc[modify_idx:] -= angle_difference
+                        self.correlation_df.loc[len(self.correlation_df)] = [
+                            idx, correlation]
 
-                    # # 코너 판단하기
-                    # peak_heading_list = self.pdr_df.loc[len(
-                    #     self.pdr_df) - 1][2:]
-                    # self.data_array = np.insert(
-                    #     self.data_array[:2], 0, peak_heading_list).reshape(3, 5)
-                    # corner_heading_list = diff_angles(
-                    #     self.data_array[0, :], self.data_array[2, :])
-                    # is_corner = np.array([False, False, False, False, False])
-                    # for idx, corner_heading in enumerate(corner_heading_list):
-                    #     if self.pass_count[idx] == 0:
-                    #         if self.data_array[2:, idx] != 0:  # 데이터 채워지는거 대기
-                    #             if corner_heading >= 30 / (180 / np.pi):
-                    #                 is_corner[idx] = True
-                    #                 self.pass_count[idx] += 5  # 이건 5번동안 검사 안함
-                    #                 self.data_array[:, idx] = np.zeros(3)
-                    # self.pass_count[self.pass_count >
-                    #                 0] -= 1  # 5번 검사안하는거 한번 줄임
-                    # self.corner_df.loc[len(self.corner_df)] = np.insert(  # 코너 상태 업로드
-                    #     is_corner, 0, peak_idx)
+                    # 코너 판단하기
+                    peak_heading_list = self.headingcalc.heading_array[peak_idx, 1:]
+                    self.data_array = np.insert(
+                        self.data_array[:2], 0, peak_heading_list).reshape(3, 5)
+                    corner_heading_list = diff_angles(
+                        self.data_array[0, :], self.data_array[2, :])
+                    is_corner = np.array([False, False, False, False, False])
+                    for idx, corner_heading in enumerate(corner_heading_list):
+                        if self.pass_count[idx] == 0:
+                            if self.data_array[2:, idx] != 0:  # 데이터 채워지는거 대기
+                                if corner_heading >= 30 / (180 / np.pi):
+                                    is_corner[idx] = True
+                                    self.pass_count[idx] += 5  # 이건 5번동안 검사 안함
+                                    self.data_array[:, idx] = np.zeros(3)
+                    self.pass_count[self.pass_count >
+                                    0] -= 1  # 5번 검사안하는거 한번 줄임
+                    self.corner_df.loc[len(self.corner_df)] = np.insert(  # 코너 상태 업로드
+                        is_corner, 0, peak_idx)
             self.peak_cnt_before = peak_cnt
 
 
