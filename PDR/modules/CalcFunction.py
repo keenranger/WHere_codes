@@ -1,8 +1,10 @@
 import numpy as np
 import pandas as pd
 
+
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))
+
 
 def mean_angles(angle_list1, angle_list2, alpha=0.5):
     complex_list = alpha * np.exp(1j*angle_list1) + \
@@ -15,6 +17,12 @@ def diff_angles(angle1, angle2):
     diff_angle = np.arccos(np.cos(angle1)*np.cos(angle2) +
                            np.sin(angle1)*np.sin(angle2))
     return diff_angle
+
+
+def rot_angles(angle1, angle2):
+    rot_angle = np.arcsin(np.cos(angle1) * np.sin(angle2) -
+                          np.sin(angle1) * np.cos(angle2))
+    return rot_angle
 
 
 def getRotationMatrixFromVector(rotation_vector, return_size):
@@ -75,18 +83,19 @@ def getOrientation(rotation_matrix):
     orientation[2] = np.arctan2(-rotation_matrix[2][0], rotation_matrix[2][2])
     return orientation
 
+
 def pdr_to_displacement(pdr_df, heading_array):
     displacement_df = pd.DataFrame(
         columns=('body_x', 'body_y', 'nav_x', 'nav_y', 'rot_x', 'rot_y', 'game_x', 'game_y', 'fusion_x', 'fusion_y'))
     heading = heading_array[list(map(int, pdr_df['idx']))]
-    displacement_df['body_x'] = pdr_df['length'] * np.cos(heading[:,1])
-    displacement_df['body_y'] = pdr_df['length'] * np.sin(heading[:,1])
-    displacement_df['nav_x'] = pdr_df['length'] * np.cos(heading[:,2])
-    displacement_df['nav_y'] = pdr_df['length'] * np.sin(heading[:,2])
-    displacement_df['rot_x'] = pdr_df['length'] * np.cos(heading[:,3])
-    displacement_df['rot_y'] = pdr_df['length'] * np.sin(heading[:,3])
-    displacement_df['game_x'] = pdr_df['length'] * np.cos(heading[:,4])
-    displacement_df['game_y'] = pdr_df['length'] * np.sin(heading[:,4])
-    displacement_df['fusion_x'] = pdr_df['length'] * np.cos(heading[:,5])
-    displacement_df['fusion_y'] = pdr_df['length'] * np.sin(heading[:,5])
+    displacement_df['body_x'] = pdr_df['length'] * np.cos(heading[:, 1])
+    displacement_df['body_y'] = pdr_df['length'] * np.sin(heading[:, 1])
+    displacement_df['nav_x'] = pdr_df['length'] * np.cos(heading[:, 2])
+    displacement_df['nav_y'] = pdr_df['length'] * np.sin(heading[:, 2])
+    displacement_df['rot_x'] = pdr_df['length'] * np.cos(heading[:, 3])
+    displacement_df['rot_y'] = pdr_df['length'] * np.sin(heading[:, 3])
+    displacement_df['game_x'] = pdr_df['length'] * np.cos(heading[:, 4])
+    displacement_df['game_y'] = pdr_df['length'] * np.sin(heading[:, 4])
+    displacement_df['fusion_x'] = pdr_df['length'] * np.cos(heading[:, 5])
+    displacement_df['fusion_y'] = pdr_df['length'] * np.sin(heading[:, 5])
     return displacement_df
