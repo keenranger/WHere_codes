@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from PDR.modules.PeakValleyDetector import *
 from PDR.modules.HeadingCalculator import *
 
-correlation_window = 10
+correlation_window = 15
 
 
 class Walker:
@@ -84,13 +84,13 @@ class Walker:
                             rot_arr - rot_arr[0], nav_arr - nav_arr[0]).sum()/correlation_window
                         if correlation < 0.1:
                             modify_idx = int(
-                                self.pdr_df.loc[len(self.pdr_df)-10]['idx'])
+                                self.pdr_df.loc[len(self.pdr_df)-correlation_window]['idx'])
                             coefficient = 2 * \
                                 (sigmoid(-(correlation - 0.1)) - 0.5)
                             # 45도 차이 이상 나게 되면
-                            if diff_angles(self.headingcalc.heading_array[modify_idx, 3], self.headingcalc.heading_array[modify_idx, 5]) >= np.deg2rad(30):
+                            if diff_angles(self.headingcalc.heading_array[modify_idx, 3], self.headingcalc.heading_array[modify_idx, 5]) >= np.deg2rad(15):
                                 self.headingcalc.fusion_compensation = rot_angles(
-                                    self.headingcalc.heading_array[modify_idx, 3], self.headingcalc.heading_array[modify_idx, 5])
+                                    self.headingcalc.heading_array[modify_idx, 3], self.headingcalc.heading_array[modify_idx, 2])
 
                             # mean_angle = mean_angles(
                             #     self.headingcalc.heading_df.loc[modify_idx]['nav'], self.headingcalc.heading_df.loc[modify_idx]['rot'], alpha=coefficient)
