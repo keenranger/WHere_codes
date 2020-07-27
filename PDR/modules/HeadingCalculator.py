@@ -8,6 +8,7 @@ from PDR.modules.CalcFunction import *
 class HeadingCalculator:
     def __init__(self):
         self.step_before = np.array([np.NaN, np.NaN, np.NaN])
+        self.fusion_compensation = 0
 
     def step(self, time, gyro, mag, rot_vec, game_rot_vec):
         # RotationVector를 이용한 Roll, Pitch 계산
@@ -28,9 +29,10 @@ class HeadingCalculator:
             if processed_heading >= np.pi:
                 processed_heading -= 2 * np.pi
             self.heading_array = np.append(self.heading_array, np.array(
-                [[time, heading, processed_heading, -rot_vec_orientation[0], -game_vec_orientation[0], processed_heading]]), axis = 0)
+                [[time, heading, processed_heading, -rot_vec_orientation[0], -game_vec_orientation[0], processed_heading + self.fusion_compensation]]), axis=0)
         else:
             heading = 0
             processed_heading = 0
-            self.heading_array = np.array([[time, heading, processed_heading, -rot_vec_orientation[0], -game_vec_orientation[0], processed_heading]])
+            self.heading_array = np.array(
+                [[time, heading, processed_heading, -rot_vec_orientation[0], -game_vec_orientation[0], processed_heading + self.fusion_compensation]])
         self.step_before = [time, gyro[2], processed_gyro[2]]
