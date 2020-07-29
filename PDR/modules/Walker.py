@@ -5,7 +5,8 @@ import matplotlib.pyplot as plt
 from PDR.modules.PeakValleyDetector import *
 from PDR.modules.HeadingCalculator import *
 
-correlation_window = 15
+correlation_window = 10 # 10개의 헤딩이 비스하고 
+reliable_window = 3 #그 비슷한 헤딩이 세번연속면
 
 
 class Walker:
@@ -82,6 +83,9 @@ class Walker:
                             map(int, idx_window)), 3].copy()
                         correlation = diff_angles(
                             rot_arr - rot_arr[0], nav_arr - nav_arr[0]).sum()/correlation_window
+                        self.correlation_df.loc[len(self.correlation_df)] = [
+                            idx, correlation]
+                        
                         if correlation < 0.1:
                             modify_idx = int(
                                 self.pdr_df.loc[len(self.pdr_df)-correlation_window]['idx'])
@@ -97,8 +101,6 @@ class Walker:
                             # angle_difference = self.headingcalc.heading_df.loc[
                             #     modify_idx]['nav'] - mean_angle
                             # self.headingcalc.heading_df.loc[modify_idx:] -= angle_difference
-                        self.correlation_df.loc[len(self.correlation_df)] = [
-                            idx, correlation]
 
                     # 코너 판단하기
                     peak_heading_list = self.headingcalc.heading_array[peak_idx, 1:]
